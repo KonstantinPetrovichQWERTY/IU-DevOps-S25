@@ -1,6 +1,8 @@
+I'm choosing FastAPI because it is the most [popular, most widely adopted, and most well-supported framework]((https://www.reddit.com/r/Backend/comments/1qj8z6o/is_fastapi_still_a_good_choice_in_2026_for_web/)) for building Python APIs in 2026.
+
 # PYTHON.md
 
-This document outlines the best practices followed in this **Moscow Time Web Application** project, inspired by this [repo](https://github.com/zhanymkanov/fastapi-best-practices). It also explains why the official FastAPI documentation, while excellent for getting started, may not always suffice for large-scale industrial projects.
+This document outlines the best practices followed in this project, inspired by this [repo](https://github.com/zhanymkanov/fastapi-best-practices). It also explains why the official FastAPI documentation, while excellent for getting started, may not always suffice for large-scale industrial projects.
 
 ---
 
@@ -18,9 +20,6 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 
 3. **Community-Driven**:
    - The repository is widely recognized in the FastAPI community and has been reviewed and improved by multiple contributors.
-
-4. **Шеф топит за него**:
-   - как уж тут поспорить.
 
 ---
 
@@ -45,7 +44,7 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 
 - Logging is used to track application behavior and errors. Implemented as a middleware that writes logs in terminal.
 
-### 5. **Testing**
+<!-- ### 5. **Testing**
 
 - Unit tests are written using `pytest` to ensure functionality and correctness:
   - Test cases include:
@@ -57,7 +56,7 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
      ```bash
      pip install pytest
      pytest
-     ```
+     ``` -->
 
 ### 6. **Code Formatting**
 
@@ -74,7 +73,7 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 - A comprehensive `README.md` file is provided to guide users through setup, usage, and testing.
   - Docstrings are added to functions for better code documentation.
 
----
+<!-- ---
 
 ## Tests
 
@@ -110,4 +109,4 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 
 ### **Testing Edge Cases:**
 
-- Testing the behavior of the endpoint under different time zones or handling potential errors.
+- Testing the behavior of the endpoint under different time zones or handling potential errors. -->
