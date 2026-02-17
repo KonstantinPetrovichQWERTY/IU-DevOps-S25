@@ -1,8 +1,8 @@
-FROM python:3.9-alpine3.15
+FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1
 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
