@@ -55,7 +55,7 @@ async def log_requests(request: Request, call_next):
     "/",
     description="Service information",
 )
-def get_moscow_time(request: Request):
+def get_service_information(request: Request):
     """Service and system information"""
 
     utc_now = datetime.now(pytz.utc)
@@ -97,8 +97,16 @@ def get_moscow_time(request: Request):
             "path": request.url.path,
         },
         "endpoints": [
-            {"path": "/", "method": "GET", "description": "Service information"},
-            {"path": "/health", "method": "GET", "description": "Health check"},
+            {
+                "path": "/", 
+                "method": "GET", 
+                "description": "Service information"
+            },
+            {
+                "path": "/health", 
+                "method": "GET", 
+                "description": "Health check"
+            },
         ],
     }
 
@@ -108,7 +116,7 @@ def get_moscow_time(request: Request):
     description="Health check",
     status_code=200,
 )
-def get_moscow_time():
+def health_check():
     """Health check endpoint"""
     uptime = get_uptime()
 
