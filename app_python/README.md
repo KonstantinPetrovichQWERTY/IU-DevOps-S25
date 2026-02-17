@@ -1,57 +1,48 @@
-# Moscow Time Web Application
+# DevOps Info Service
 
-This is a Python web application built with **FastAPI** that displays the current time in Moscow. The application is designed to follow best practices described in this [repo](https://github.com/zhanymkanov/fastapi-best-practices). Read about it in `PYTHON.md`.
+A production-ready web service that provides comprehensive system and runtime information. Built as the foundation for a DevOps monitoring tool that will evolve throughout the course.
 
----
+## 📋 Overview
 
-## Project Structure
+The DevOps Info Service is a lightweight web application that exposes detailed information about:
 
-```
-moscow_time_app/
-├── src/
-│   └── main.py              # FastAPI application code
-├── tests/
-│   └── test_main.py         # Unit tests for the application
-├── .dockerignore            # List of files that ignores by docker
-├── .gitignore               # List of files that ignores by git
-├── DOCKER.md                # Docker documentation
-├── Dockerfile               # Configuration file for docker
-├── PYTHON.md                # Justification for my salary as a Python developer :-)
-├── README.md                # Project documentation
-└── requirements.txt         # Project dependencies
-```
+- Service metadata and configuration
+- System hardware and platform details
+- Runtime statistics and uptime
+- HTTP request information
 
----
+This service serves as the starting point for a comprehensive monitoring solution that will later include containerization, CI/CD pipelines, metrics export, and Kubernetes deployment.
 
-## Setup
+## 🚀 Quick Start
 
-1. **Clone the repository**:
+### Prerequisites
+
+- Python 3.11 or higher
+- pip (Python package manager)
+- virtualenv (recommended)
+
+### Installation
+
+1. **Clone the repository**
 
    ```bash
    git clone https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25.git
-   cd moscow_time_app
+   cd app_python
    ```
 
-2. **Create a virtual environment**:
+2. **Create and activate virtual environment**
 
    ```bash
-   python3 -m venv venv
+   # On macOS/Linux
+   python -m venv venv
+   source venv/bin/activate
+
+   # On Windows
+   python -m venv venv
+   venv\Scripts\activate
    ```
 
-3. **Activate the virtual environment**:
-   - On macOS/Linux:
-
-     ```bash
-     source venv/bin/activate
-     ```
-
-   - On Windows:
-
-     ```bash
-     venv\Scripts\activate
-     ```
-
-4. **Install dependencies**:
+3. **Install dependencies**
 
    ```bash
    pip install -r requirements.txt
@@ -68,133 +59,128 @@ uvicorn app_python.src.main:app --reload
 ```
 
 - The `--reload` flag enables auto-reloading, so the server restarts whenever you make changes to the code.
-- Open your browser and navigate to `http://127.0.0.1:8000/get_moscow_time`. You should see the current time in Moscow displayed in JSON format.
+- Open your browser and navigate to `http://127.0.0.1:8000/`. You should see the system information displayed in JSON format.
 - To see the SwaggerUI documentation navigate to `http://127.0.0.1:8000/docs`.
 
 ---
 
-## Running the Unit Tests
+## 🔧 Configuration
 
-First of all, install required dependencies to your virtual environment (venv):
+The application can be configured using environment variables:
 
-```bash
-pip install pytest requests
-```
+| Variable | Description | Default | Example |
+| ---------- | ------------- | --------- | --------- |
+| `HOST` | Bind address | `0.0.0.0` | `127.0.0.1` |
+| `PORT` | Listening port | `5000` | `8080` |
+| `DEBUG` | Debug mode | `False` | `True` |
 
-To start the tests, run the following command in `app_python` directory:
-
-```bash
-pytest tests/test_main.py -v 
-```
-
-If everything is correct, the test should pass:
+**Examples:**
 
 ```bash
-============================= test session starts =============================
-collected 4 items
+# Custom port
+PORT=8080 uvicorn app_python.src.main:app --reload
 
-tests/test_main.py::test_get_moscow_time PASSED                          [ 25%]
-tests/test_main.py::test_moscow_time_format PASSED                       [ 50%]
-tests/test_main.py::test_moscow_time_updates PASSED                      [ 75%]
-tests/test_main.py::test_moscow_time_timezone PASSED                     [100%]
+# Local only with debug mode
+HOST=127.0.0.1 DEBUG=True uvicorn app_python.src.main:app --reload
 
-============================== 4 passed in 2.05s ==============================
+# Production configuration
+HOST=0.0.0.0 PORT=3000 uvicorn app_python.src.main:app --reload
 ```
 
----
+## 📡 API Endpoints
 
-## Docker
+### GET `/`
 
-Or you can simply use docker to run and build the application:
+Returns comprehensive service and system information.
 
-1. **How to build?**
-To build the Docker image locally, navigate to the project directory (app_python) and run the following command. This will create a Docker image tagged as `moscow-time-app`.
+**Response Example:**
 
-   ```bash
-   docker build -t moscow-time-app .
-   ```
-
-2. **How to run?**
-To run the Docker container, use the following command. The `-d` flag runs the container in detached mode, and `-p 8000:8000` maps port 8000 on your local machine to port 8000 in the container.
-
-   ```bash
-   docker run -d -p 8000:8000 moscow-time-app:1.0
-   ```
-
-3. **How to pull?**
-You can pull docker image from DockerHub [repo](https://hub.docker.com/repository/docker/konstantinqwertin/moscow-time-app/general).
-
-   ```bash
-   docker pull konstantinqwertin/moscow-time-app:1.0
-   docker run -d -p 8000:8000 konstantinqwertin/moscow-time-app:1.0
-   ```
-
----
-
-## Testing the Application
-
-To run the unit tests, use the following command:
-
-```bash
-pytest
+```json
+{
+  "service": {
+    "name": "devops-info-service",
+    "version": "1.0.0",
+    "description": "DevOps course info service",
+    "framework": "FastApi"
+  },
+  "system": {
+    "hostname": "LAPTOP-2BCVD7LH",
+    "platform": "Windows",
+    "platform_version": "10.0.19045",
+    "architecture": "AMD64",
+    "cpu_count": 8,
+    "python_version": "3.11.9"
+  },
+  "runtime": {
+    "uptime_seconds": 6,
+    "uptime_human": "0 hours, 0 minutes",
+    "current_time": "2026-02-16T22:13:31.723824+00:00",
+    "timezone": "UTC"
+  },
+  "request": {
+    "client_ip": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+    "method": "GET",
+    "path": "/"
+  },
+  "endpoints": [
+    {
+      "path": "/",
+      "method": "GET",
+      "description": "Service information"
+    },
+    {
+      "path": "/health",
+      "method": "GET",
+      "description": "Health check"
+    }
+  ]
+}
 ```
 
-### Test Cases
+### GET `/health`
 
-1. **Test Endpoint Response**:
-   - Verifies that the `/get_moscow_time` endpoint returns a valid response (contain `'moscow_time'` key) with a status code of `200`.
+Simple health check endpoint for monitoring probes.
 
-2. **Test Time Format**:
-   - Ensures that the returned time is in the correct `YYYY-MM-DD HH:MM:SS` format.
+**Response Example:**
 
-3. **Test Time Updates**:
-   - Confirms that the displayed time updates between requests.
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-16T22:13:53.189929+00:00",
+  "uptime_seconds": 27
+}
+```
 
----
+**Status Codes:**
 
-## Dependencies
+- `200 OK` - Service is healthy
+- `500 Internal Server Error` - Service is unhealthy
 
-All dependencies you can find in `requirements.txt`.
+## 🛠️ Development
 
----
+### Project Structure
 
-## Continuous Integration (CI) with GitHub Actions
+```project structure
+app_python/
+├── app.py                    # Main application
+├── requirements.txt          # Dependencies
+├── .gitignore               # Git ignore rules
+├── README.md                # This file
+├── tests/                   # Unit tests (Lab 3)
+│   └── __init__.py
+└── docs/                    # Documentation
+    ├── LAB01.md             # Lab 1 submission
+    └── screenshots/         # Proof of work
+        ├── 01-main-endpoint.png
+        ├── 02-health-check.png
+        └── 03-formatted-output.png
+```
 
-This project uses GitHub Actions for Continuous Integration (CI) to automate building, testing, and linting.
+## 👥 Contributing
 
-### CI Workflow Overview
-
-The CI pipeline performs the following steps:
-
-- **Install Dependencies:**
-   Installs Python dependencies from `requirements.txt`.
-- **Run Linter:**
-   Checks code style and formatting using `flake8`.
-- **Run Tests:**
-   Executes unit tests using pytest.
-- **Build and Push Docker Image:**
-   Builds a Docker image and pushes it to Docker Hub.
-
-### Setting Up the CI Pipeline
-
-**Docker Hub Credentials:**
-
-To push Docker images, add your Docker Hub credentials as GitHub Secrets:
-
-- `DOCKER_HUB_USERNAME`: Your Docker Hub username.
-
-- `DOCKER_HUB_TOKEN`: Your Docker Hub access token.
-
-These secrets are used in the `docker-build-and-push` job.
-
-### Workflow File
-
-The CI workflow is defined in `.github/workflows/ci.yml`.
-
-### Running the Pipeline
-
-The pipeline runs automatically on every push and pull_request to the master branch.
-
-You can also manually trigger the workflow from the Actions tab in your GitHub repository.
-
----
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request

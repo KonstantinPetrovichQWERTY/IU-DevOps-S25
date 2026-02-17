@@ -8,7 +8,7 @@ import pytz
 
 def get_app():
     sys.path.append("app_python")
-    from src.main import app
+    from app_python.app import app
     return app
 
 

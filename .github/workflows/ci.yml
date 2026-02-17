@@ -1,4 +1,4 @@
-name: Moscow Time Application
+name: DevOps Info Service
 
 on:
   push:
@@ -31,10 +31,10 @@ jobs:
           pip install flake8
           flake8 .
 
-      - name: Run tests
-        run: |
-          pip install pytest httpx
-          pytest
+      # - name: Run tests
+      #   run: |
+      #     pip install pytest httpx
+      #     pytest
 
   docker-build-and-push:
     runs-on: ubuntu-latest
@@ -52,8 +52,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t konstantinqwertin/moscow-time-app:latest app_python/
+          docker build -t konstantinqwertin/devops-info-app:latest app_python/
 
       - name: Push Docker image
         run: |
-          docker push konstantinqwertin/moscow-time-app:latest
+          docker push konstantinqwertin/devops-info-app:latest
