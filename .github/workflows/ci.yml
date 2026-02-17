@@ -31,10 +31,10 @@ jobs:
           pip install flake8
           flake8 .
 
-      # - name: Run tests
-      #   run: |
-      #     pip install pytest httpx
-      #     pytest
+      - name: Run tests
+        run: |
+          pip install pytest httpx
+          pytest
 
   docker-build-and-push:
     runs-on: ubuntu-latest
