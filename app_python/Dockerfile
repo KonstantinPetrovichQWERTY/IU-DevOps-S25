@@ -10,7 +10,7 @@ COPY requirements.txt /app/
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src/ /app/src/
+COPY app_python/ /app/app_python/
 
 RUN chown -R appuser:appgroup /app
 
