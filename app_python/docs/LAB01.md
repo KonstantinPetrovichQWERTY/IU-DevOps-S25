@@ -1,7 +1,5 @@
 I'm choosing FastAPI because it is the most [popular, most widely adopted, and most well-supported framework]((https://www.reddit.com/r/Backend/comments/1qj8z6o/is_fastapi_still_a_good_choice_in_2026_for_web/)) for building Python APIs in 2026.
 
-# PYTHON.md
-
 This document outlines the best practices followed in this project, inspired by this [repo](https://github.com/zhanymkanov/fastapi-best-practices). It also explains why the official FastAPI documentation, while excellent for getting started, may not always suffice for large-scale industrial projects.
 
 ---
@@ -44,21 +42,7 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 
 - Logging is used to track application behavior and errors. Implemented as a middleware that writes logs in terminal.
 
-<!-- ### 5. **Testing**
-
-- Unit tests are written using `pytest` to ensure functionality and correctness:
-  - Test cases include:
-    - Verifying the endpoint response.
-      - Validating the time format.
-      - Ensuring the time updates between requests.
-     To run tests:
-
-     ```bash
-     pip install pytest
-     pytest
-     ``` -->
-
-### 6. **Code Formatting**
+### 5. **Code Formatting**
 
 - Use the `black` module to ensure consistent style during development.
      To run styler formater run the following command in root directory:
@@ -68,45 +52,31 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
      black .
      ```
 
-### 7. **Documentation**
+### 6. **Documentation**
 
 - A comprehensive `README.md` file is provided to guide users through setup, usage, and testing.
   - Docstrings are added to functions for better code documentation.
 
-<!-- ---
+--- 
 
-## Tests
+## API examples
 
-- `test_get_moscow_time`:
-  - This test checks that the `/get_moscow_time` endpoint returns a valid response with a status code of 200 and that the response contains the key `moscow_time`.
+Check [README.md](/app_python/README.md)
 
-- `test_moscow_time_format`:
-  - This test verifies that the `moscow_time` value returned by the endpoint is correctly formatted according to the "%Y-%m-%d %H:%M:%S" format.
+## Testing evidence
 
-- `test_moscow_time_updates`:
-  - This test ensures that the Moscow time returned by the endpoint updates between consecutive requests.
+![01-main-endpoint.png](/app_python/docs/screenshots/01-main-endpoint.png)
+![02-health-check.png](/app_python/docs/screenshots/02-health-check.png)
+![03-formatted-output.png](/app_python/docs/screenshots/03-formatted-output.png)
 
-- `test_moscow_time_timezone`:
-  - This test ensures that the time returned by the `/get_moscow_time` endpoint is in the Europe/Moscow timezone.
+## GitHub Community section (why stars/follows matter)
 
-## Tests best Practices
+| Activity | Purpose | Benefit |
+|----------|---------|---------|
+| **Starring** | Bookmark interesting projects | Personal library of resources |
+| **Starring** | Show appreciation | Encourages maintainers |
+| **Starring** | Increase project visibility | Helps projects grow |
+| **Following** | See others' work | Discover new projects |
+| **Following** | Learn from examples | Improve coding skills |
+| **Following** | Build network | Career opportunities |
 
-### **Asserting Status Code:**
-
-- The test asserts that the response status code is 200, which is a standard practice to ensure the endpoint is working correctly.
-
-### **Isolation of Tests:**
-
-- Each test is isolated and focuses on a single aspect of the functionality (e.g., response structure, format, time update, time zone). This makes the tests easier to understand and maintain.
-
-### **Use of TestClient:**
-
-- The TestClient from FastAPI is used to simulate HTTP requests to the application. This is a standard practice for testing FastAPI applications, allowing you to test endpoints without running a live server.
-
-### **Assertions with Clear Messages:**
-
-- The assertions include clear error messages (e.g., "Time did not update between requests"), which help quickly identify the cause of a test failure.
-
-### **Testing Edge Cases:**
-
-- Testing the behavior of the endpoint under different time zones or handling potential errors. -->

@@ -98,13 +98,13 @@ def get_service_information(request: Request):
         },
         "endpoints": [
             {
-                "path": "/", 
-                "method": "GET", 
+                "path": "/",
+                "method": "GET",
                 "description": "Service information"
             },
             {
-                "path": "/health", 
-                "method": "GET", 
+                "path": "/health",
+                "method": "GET",
                 "description": "Health check"
             },
         ],
