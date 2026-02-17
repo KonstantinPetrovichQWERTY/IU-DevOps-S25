@@ -55,7 +55,7 @@ uvicorn app_python.src.main:app --reload
 ```
 
 - The `--reload` flag enables auto-reloading, so the server restarts whenever you make changes to the code.
-- Open your browser and navigate to `http://127.0.0.1:8000/get_moscow_time`. You should see the current time in Moscow displayed in JSON format.
+- Open your browser and navigate to `http://127.0.0.1:8000/`. You should see the system information displayed in JSON format.
 - To see the SwaggerUI documentation navigate to `http://127.0.0.1:8000/docs`.
 
 ---
