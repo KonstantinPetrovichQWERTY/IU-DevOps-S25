@@ -1,3 +1,5 @@
+# Framework selection
+
 I'm choosing FastAPI because it is the most [popular, most widely adopted, and most well-supported framework]((https://www.reddit.com/r/Backend/comments/1qj8z6o/is_fastapi_still_a_good_choice_in_2026_for_web/)) for building Python APIs in 2026.
 
 This document outlines the best practices followed in this project, inspired by this [repo](https://github.com/zhanymkanov/fastapi-best-practices). It also explains why the official FastAPI documentation, while excellent for getting started, may not always suffice for large-scale industrial projects.
@@ -57,7 +59,7 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 - A comprehensive `README.md` file is provided to guide users through setup, usage, and testing.
   - Docstrings are added to functions for better code documentation.
 
---- 
+---
 
 ## API examples
 
@@ -72,11 +74,10 @@ Check [README.md](/app_python/README.md)
 ## GitHub Community section (why stars/follows matter)
 
 | Activity | Purpose | Benefit |
-|----------|---------|---------|
+| ---------- | --------- | --------- |
 | **Starring** | Bookmark interesting projects | Personal library of resources |
 | **Starring** | Show appreciation | Encourages maintainers |
 | **Starring** | Increase project visibility | Helps projects grow |
 | **Following** | See others' work | Discover new projects |
 | **Following** | Learn from examples | Improve coding skills |
 | **Following** | Build network | Career opportunities |
-

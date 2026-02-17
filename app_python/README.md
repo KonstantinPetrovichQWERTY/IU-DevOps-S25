@@ -5,6 +5,7 @@ A production-ready web service that provides comprehensive system and runtime in
 ## 📋 Overview
 
 The DevOps Info Service is a lightweight web application that exposes detailed information about:
+
 - Service metadata and configuration
 - System hardware and platform details
 - Runtime statistics and uptime
@@ -23,12 +24,14 @@ This service serves as the starting point for a comprehensive monitoring solutio
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25.git
    cd app_python
    ```
 
 2. **Create and activate virtual environment**
+
    ```bash
    # On macOS/Linux
    python -m venv venv
@@ -40,6 +43,7 @@ This service serves as the starting point for a comprehensive monitoring solutio
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -60,19 +64,18 @@ uvicorn app_python.src.main:app --reload
 
 ---
 
-
-
 ## 🔧 Configuration
 
 The application can be configured using environment variables:
 
 | Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
+| ---------- | ------------- | --------- | --------- |
 | `HOST` | Bind address | `0.0.0.0` | `127.0.0.1` |
 | `PORT` | Listening port | `5000` | `8080` |
 | `DEBUG` | Debug mode | `False` | `True` |
 
 **Examples:**
+
 ```bash
 # Custom port
 PORT=8080 uvicorn app_python.src.main:app --reload
@@ -91,6 +94,7 @@ HOST=0.0.0.0 PORT=3000 uvicorn app_python.src.main:app --reload
 Returns comprehensive service and system information.
 
 **Response Example:**
+
 ```json
 {
   "service": {
@@ -139,6 +143,7 @@ Returns comprehensive service and system information.
 Simple health check endpoint for monitoring probes.
 
 **Response Example:**
+
 ```json
 {
   "status": "healthy",
@@ -148,6 +153,7 @@ Simple health check endpoint for monitoring probes.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Service is healthy
 - `500 Internal Server Error` - Service is unhealthy
 
@@ -155,7 +161,7 @@ Simple health check endpoint for monitoring probes.
 
 ### Project Structure
 
-```
+```project structure
 app_python/
 ├── app.py                    # Main application
 ├── requirements.txt          # Dependencies
