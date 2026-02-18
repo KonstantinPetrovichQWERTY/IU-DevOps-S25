@@ -56,4 +56,4 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push konstantinqwertin/devops-info-app:latest
+          docker push konstantinqwertin/devops-info-app:${{ github.sha }}
