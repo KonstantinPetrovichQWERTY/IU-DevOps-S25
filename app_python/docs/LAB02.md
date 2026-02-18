@@ -11,7 +11,7 @@
     <summary>Running containers as root is dangerous because:</summary>
 
     If an attacker exploits a vulnerability in your application and breaks out of the container, they automatically gain root access on your host machine. This gives them full control over your entire system.
-    </details> 
+    </details>
 
 3. **Optimize Docker Layers:**
 
@@ -39,7 +39,7 @@
         `ADD` does the same but adds two "magic" behaviors:
         * Auto-extracts local tar archives (.tar, .gz, etc.)
         * Downloads files from remote URLs
-    </details> 
+    </details>
 
 8. **Expose Only Necessary Ports:**
 
@@ -52,12 +52,14 @@
 10. **Git Commit Hash (SHA) tagging strategy:**
 
     Tag the Docker image with the Git commit hash it was built from
-    ```bash 
+
+    ```bash
         docker build -t myapp:$(git rev-parse --short HEAD) .
         # Example: myapp:a4f7d2e
     ```
 
     Or set up this approach in CI
+
     ```yaml
         - name: Build Docker image
             run: |
