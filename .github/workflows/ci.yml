@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -33,7 +33,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pip install pytest httpx
+          pip install pytest
           pytest
 
   docker-build-and-push:
@@ -52,7 +52,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t konstantinqwertin/devops-info-app:latest app_python/
+          docker build -t konstantinqwertin/devops-info-app:${{ github.sha }} app_python/
 
       - name: Push Docker image
         run: |
