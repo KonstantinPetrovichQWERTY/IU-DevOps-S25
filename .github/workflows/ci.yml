@@ -44,14 +44,6 @@ jobs:
         run: |
           pip install pytest httpx
           pytest
-
-  security:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@master
       
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
@@ -62,7 +54,7 @@ jobs:
 
   docker-build-and-push:
     runs-on: ubuntu-latest
-    needs: security
+    needs: build-and-test
 
     steps:
       - name: Checkout code
