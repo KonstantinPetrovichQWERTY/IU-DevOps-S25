@@ -51,13 +51,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Show workspace content
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        id: pip-cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('app_python/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+    
+      - name: Install dependencies
         run: |
-          echo "=== Current directory ==="
-          pwd
-          echo "=== All files ==="
-          ls 
-      
+          python -m pip install --upgrade pip
+          pip install -r app_python/requirements.txt
+          pip install flake8 pytest httpx
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
         env:
