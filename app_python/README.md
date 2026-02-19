@@ -4,14 +4,32 @@ A production-ready web service that provides comprehensive system and runtime in
 
 [![Workflow Status](https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25/actions/workflows/ci.yml/badge.svg)](https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25/actions/workflows/ci.yml)
 
+## Table of contents
+
+- [Overview](#-overview)
+  - [Quick Start](#-quick-start)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+  - [Docker](#docker)
+  - [Configuration](#-configuration)
+  - [Running the Unit Tests](#running-the-unit-tests)
+    - [Test structure](#test-structure)
+  - [API Endpoints](#-api-endpoints)
+    - [GET `/`](#get-)
+    - [GET `/health`](#get-health)
+  - [Development](#️-development)
+    - [Project Structure](#project-structure)
+  - [Contributing](#-contributing)
+
 ## 📋 Overview
 
 The DevOps Info Service is a lightweight web application that exposes detailed information about:
 
-* Service metadata and configuration
-* System hardware and platform details
-* Runtime statistics and uptime
-* HTTP request information
+- Service metadata and configuration
+- System hardware and platform details
+- Runtime statistics and uptime
+- HTTP request information
 
 This service serves as the starting point for a comprehensive monitoring solution that will later include containerization, CI/CD pipelines, metrics export, and Kubernetes deployment.
 
@@ -19,9 +37,9 @@ This service serves as the starting point for a comprehensive monitoring solutio
 
 ### Prerequisites
 
-* Python 3.11 or higher
-* pip (Python package manager)
-* virtualenv (recommended)
+- Python 3.11 or higher
+- pip (Python package manager)
+- virtualenv (recommended)
 
 ### Installation
 
@@ -60,9 +78,9 @@ To start the FastAPI application, run the following command:
 uvicorn app_python.src.main:app --reload
 ```
 
-* The `--reload` flag enables auto-reloading, so the server restarts whenever you make changes to the code.
-* Open your browser and navigate to `http://127.0.0.1:8000/`. You should see the system information displayed in JSON format.
-* To see the SwaggerUI documentation navigate to `http://127.0.0.1:8000/docs`.
+- The `--reload` flag enables auto-reloading, so the server restarts whenever you make changes to the code.
+- Open your browser and navigate to `http://127.0.0.1:8000/`. You should see the system information displayed in JSON format.
+- To see the SwaggerUI documentation navigate to `http://127.0.0.1:8000/docs`.
 
 ---
 
@@ -152,9 +170,9 @@ tests/test_main.py::TestConfiguration::test_port_configuration PASSED           
 
 Class Organization
 
-* `TestRootEndpoint` - Tests for the main API endpoint
-* `TestHealthEndpoint` - Tests for health check functionality
-* `TestConfiguration` - Tests for configuration handling
+- `TestRootEndpoint` - Tests for the main API endpoint
+- `TestHealthEndpoint` - Tests for health check functionality
+- `TestConfiguration` - Tests for configuration handling
 
 ---
 
@@ -225,8 +243,8 @@ Simple health check endpoint for monitoring probes.
 
 **Status Codes:**
 
-* `200 OK` - Service is healthy
-* `500 Internal Server Error` - Service is unhealthy
+- `200 OK` - Service is healthy
+- `500 Internal Server Error` - Service is unhealthy
 
 ## 🛠️ Development
 
