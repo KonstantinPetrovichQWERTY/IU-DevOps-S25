@@ -2,6 +2,8 @@
 
 A production-ready web service that provides comprehensive system and runtime information. Built as the foundation for a DevOps monitoring tool that will evolve throughout the course.
 
+[![Workflow Status](https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25/actions/workflows/ci.yml/badge.svg)](https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25/actions/workflows/ci.yml)
+
 ## 📋 Overview
 
 The DevOps Info Service is a lightweight web application that exposes detailed information about:
