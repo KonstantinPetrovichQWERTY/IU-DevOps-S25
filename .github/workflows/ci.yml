@@ -50,9 +50,15 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      - name: Generate CalVer tag
+        id: calver
+        run: |
+          echo "version=$(date -u '+%Y.%m.%d-%H:%M')" >> $GITHUB_OUTPUT
+
       - name: Build Docker image
         run: |
-          docker build -t konstantinqwertin/devops-info-app:${{ github.sha }} app_python/
+          docker build -t konstantinqwertin/devops-info-app:${{ github.sha }} \
+                       -t konstantinqwertin/devops-info-app:${{ steps.calver.outputs.version }} app_python/
 
       - name: Push Docker image
         run: |
