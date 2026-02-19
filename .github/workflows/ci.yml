@@ -38,11 +38,11 @@ jobs:
           
       - name: Run linter
         run: |
-          flake8 app-python/
+          flake8 app_python/
 
       - name: Run tests
         run: |
-          pytest app-python/
+          pytest app_python/
       
   security-scan:
     runs-on: ubuntu-latest  
@@ -51,23 +51,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r app_python/requirements.txt
-          pip install flake8 pytest httpx
-
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --file=app_python/requirements.txt
 
   docker-build-and-push:
     runs-on: ubuntu-latest
