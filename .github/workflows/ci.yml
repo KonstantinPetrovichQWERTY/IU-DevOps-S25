@@ -51,10 +51,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Show workspace content
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== All files ==="
+          ls -la
+      
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=requirements.txt
 
   docker-build-and-push:
     runs-on: ubuntu-latest
