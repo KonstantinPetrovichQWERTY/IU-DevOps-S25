@@ -63,7 +63,7 @@ The repository [fastapi-best-practices](https://github.com/zhanymkanov/fastapi-b
 
 ## API examples
 
-Check [README.md](/app_python/README.md)
+Check [README.md](/app_python/README.md) (Section: API Endpoints)
 
 ## Testing evidence
 

@@ -2,6 +2,26 @@
 
 A production-ready web service that provides comprehensive system and runtime information. Built as the foundation for a DevOps monitoring tool that will evolve throughout the course.
 
+[![Workflow Status](https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25/actions/workflows/ci.yml/badge.svg)](https://github.com/KonstantinPetrovichQWERTY/IU-DevOps-S25/actions/workflows/ci.yml)
+
+## Table of contents
+
+- [Overview](#-overview)
+  - [Quick Start](#-quick-start)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+  - [Docker](#docker)
+  - [Configuration](#-configuration)
+  - [Running the Unit Tests](#running-the-unit-tests)
+    - [Test structure](#test-structure)
+  - [API Endpoints](#-api-endpoints)
+    - [GET `/`](#get-)
+    - [GET `/health`](#get-health)
+  - [Development](#️-development)
+    - [Project Structure](#project-structure)
+  - [Contributing](#-contributing)
+
 ## 📋 Overview
 
 The DevOps Info Service is a lightweight web application that exposes detailed information about:
@@ -114,6 +134,47 @@ HOST=127.0.0.1 DEBUG=True uvicorn app_python.src.main:app --reload
 # Production configuration
 HOST=0.0.0.0 PORT=3000 uvicorn app_python.src.main:app --reload
 ```
+
+---
+
+## Running the Unit Tests
+
+First of all, install required dependencies to your virtual environment (venv):
+
+```bash
+pip install pytest
+```
+
+To start the tests, run the following command in `app_python` directory:
+
+```bash
+pytest tests/test_main.py -v 
+```
+
+If everything is correct, the test should pass:
+
+```bash
+======================================= test session starts =======================================
+collected 5 items
+
+tests/test_main.py::TestRootEndpoint::test_root_endpoint_structure PASSED                    [ 20%]
+tests/test_main.py::TestRootEndpoint::test_root_endpoint_returns_valid_datetime PASSED       [ 40%] 
+tests/test_main.py::TestHealthEndpoint::test_health_check_success PASSED                     [ 60%] 
+tests/test_main.py::TestHealthEndpoint::test_health_check_timestamp_format PASSED            [ 80%] 
+tests/test_main.py::TestConfiguration::test_port_configuration PASSED                        [100%]
+
+======================================== 5 passed in 0.61s ========================================
+```
+
+### Test structure
+
+Class Organization
+
+- `TestRootEndpoint` - Tests for the main API endpoint
+- `TestHealthEndpoint` - Tests for health check functionality
+- `TestConfiguration` - Tests for configuration handling
+
+---
 
 ## 📡 API Endpoints
 
