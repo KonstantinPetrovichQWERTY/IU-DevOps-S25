@@ -100,7 +100,8 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t konstantinqwertin/devops-info-app:${{ github.sha }} \
-                       -t konstantinqwertin/devops-info-app:${{ steps.calver.outputs.version }} app_python/
+                       -t konstantinqwertin/devops-info-app:${{ steps.calver.outputs.version }} \
+                       -t konstantinqwertin/devops-info-app:latest app_python/
 
       - name: Push Docker image
         run: |

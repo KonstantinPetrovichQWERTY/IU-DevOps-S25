@@ -48,7 +48,7 @@ resource "yandex_vpc_security_group" "security_group" {
   ingress {
     protocol       = "TCP"
     description    = "Application port"
-    port           = 5000
+    port           = 8000
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -62,7 +62,7 @@ resource "yandex_vpc_security_group" "security_group" {
 }
 
 data "yandex_compute_image" "ubuntu" {
-  family = "ubuntu-2004-lts"
+  family = "ubuntu-2204-lts"
 }
 
 # Create VM instance

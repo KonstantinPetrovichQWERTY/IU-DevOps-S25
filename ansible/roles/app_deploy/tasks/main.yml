@@ -1,0 +1,82 @@
+- name: Log in to Docker Hub
+  docker_login:
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_password }}"
+  # no_log: true  # Prevents credentials from being exposed in logs
+  tags: deploy
+
+- name: Pull Docker image
+  docker_image:
+    name: "{{ docker_image }}"
+    tag: "{{ docker_image_tag }}"
+    source: pull
+    force_source: yes  # Always pull latest to ensure updates
+  register: pull_result
+  tags: deploy
+
+- name: Stop existing container (if running)
+  docker_container:
+    name: "{{ app_container_name }}"
+    state: stopped
+  ignore_errors: yes  # Ignore if container doesn't exist
+  register: stop_result
+  tags: deploy
+  notify: restart application
+
+- name: Remove old container (if exists)
+  docker_container:
+    name: "{{ app_container_name }}"
+    state: absent
+  ignore_errors: yes
+  tags: deploy
+
+- name: Run new container
+  docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    restart_policy: "{{ app_restart_policy }}"
+    ports:
+      - "{{ app_host_port }}:{{ app_port }}"
+    env: "{{ app_environment }}"
+    pull: false  # Already pulled above
+    memory: "{{ app_memory_limit }}"
+    cpus: "{{ app_cpu_limit }}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:{{ app_port }}{{ health_check_path }}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+  register: container_result
+  tags: deploy
+
+- name: Wait for application to be ready (port check)
+  wait_for:
+    port: "{{ app_host_port }}"
+    host: "{{ ansible_default_ipv4.address }}"
+    delay: 5
+    timeout: "{{ health_check_timeout }}"
+    state: started
+  tags: deploy
+
+- name: Verify health endpoint
+  uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ app_host_port }}{{ health_check_path }}"
+    method: GET
+    status_code: 200
+    timeout: 10
+  register: health_result
+  retries: "{{ health_check_retries }}"
+  delay: 5
+  until: health_result.status == 200
+  tags: deploy
+
+- name: Display deployment status
+  debug:
+    msg:
+      - "Application {{ app_name }} deployed successfully!"
+      - "Container ID: {{ container_result.container.Id[:12] }}"
+      - "Health check: {{ health_result.status }} - {{ health_result.json if health_result.json is defined else 'OK' }}"
+  when: container_result is changed
+  tags: deploy

@@ -20,7 +20,7 @@ output "http_access_url" {
 
 output "app_access_url" {
   description = "URL to access application on port 5000"
-  value       = "http://${yandex_compute_instance.vm.network_interface.0.nat_ip_address}:5000"
+  value       = "http://${yandex_compute_instance.vm.network_interface.0.nat_ip_address}:8000"
 }
 
 output "network_name" {
