@@ -1,0 +1,11 @@
+name: iu-devops-vm
+description: Pulumi VM on Yandex Cloud
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: venv
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: python
