@@ -1,0 +1,12 @@
+common_packages:
+  - python3-pip
+  - curl
+  - git
+  - vim
+  - htop
+  - tree
+  - wget
+  - unzip
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates

@@ -48,7 +48,7 @@ The following infrastructure components were provisioned:
    - Inbound Rules:
      - SSH (port 22) - Restricted to specific IP
      - HTTP (port 80) - Open to internet
-     - Custom App (port 5000) - Open to internet
+     - Custom App (port 8000) - Open to internet
    - Outbound Rules: All traffic allowed
 
 4. **Compute Instance (VM)**
