@@ -138,3 +138,6 @@ CONTAINER ID   IMAGE                                      COMMAND               
 29b8cfb54dd7   konstantinqwertin/devops-info-app:latest   "uvicorn app_python.…"   2 minutes ago   Up 2 minutes (unhealthy)   0.0.0.0:8000->8000/tcp   devops-info-app
 ```
 
+## Application
+
+![app](/ansible/docs/screenshots/application.png)

@@ -8,6 +8,43 @@ ansible 2.10.8
 ### Target VM OS and version
 Ubuntu 22.04
 
+### Structure
+
+```text
+ansible/
+├── inventory/
+│   └── hosts.ini              # Static inventory
+├── roles/
+│   ├── common/                # Common system tasks
+│   │   ├── tasks/
+│   │   │   └── main.yml
+│   │   └── defaults/
+│   │       └── main.yml
+│   ├── docker/                # Docker installation
+│   │   ├── tasks/
+│   │   │   └── main.yml
+│   │   ├── handlers/
+│   │   │   └── main.yml
+│   │   └── defaults/
+│   │       └── main.yml
+│   └── app_deploy/            # Application deployment
+│       ├── tasks/
+│       │   └── main.yml
+│       ├── handlers/
+│       │   └── main.yml
+│       └── defaults/
+│           └── main.yml
+├── playbooks/
+│   ├── site.yml               # Main playbook
+│   ├── provision.yml          # System provisioning
+│   └── deploy.yml             # App deployment
+├── group_vars/
+│   └── all.yml               # Encrypted variables (Vault)
+├── ansible.cfg               # Ansible configuration
+└── docs/
+    └── LAB05.md              # Your documentation
+```
+
 ## 2. Roles Documentation
 
 ### Common Role
