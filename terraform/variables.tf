@@ -17,13 +17,13 @@ variable "folder_id" {
 variable "zone" {
   description = "Yandex Cloud zone"
   type        = string
-  default     = "ru-central1-a"
+  default     = "ru-central1-b"
 }
 
 variable "project_name" {
   description = "Project name for resource tagging"
   type        = string
-  default     = "terraform-vm-project"
+  default     = "iu-devops"
 }
 
 variable "environment" {
@@ -35,7 +35,7 @@ variable "environment" {
 variable "ssh_public_key_path" {
   description = "Path to SSH public key file"
   type        = string
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "~/.ssh/id_ed25519.pub"
 }
 
 variable "your_ip" {
