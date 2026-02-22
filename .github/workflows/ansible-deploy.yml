@@ -46,11 +46,25 @@ jobs:
       #   with:
       #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Setup SSH
+      # - name: Setup SSH
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+      #     chmod 600 ~/.ssh/id_ed25519
+
+      - name: Setup SSH with relaxed settings for debugging
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          # Отключаем strict host key checking для теста
+          echo "Host ${{ secrets.VM_HOST }}" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile /dev/null" >> ~/.ssh/config
+          echo "  LogLevel DEBUG" >> ~/.ssh/config
+          
+          # Тест подключения
+          ssh ubuntu@${{ secrets.VM_HOST }} "echo 'Connected!'"
 
       - name: Deploy with Ansible
         run: |
