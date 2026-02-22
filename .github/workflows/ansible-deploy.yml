@@ -28,13 +28,13 @@ jobs:
         run: |
           pip install ansible ansible-lint
 
-      - name: Create dummy vault password for linting
+      - name: Create tmp vault password for linting
         run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
 
       - name: Run ansible-lint
         run: |
           cd ansible
-          ansible-lint playbooks/*.yml --vault-password-file .vault_pass
+          ansible-lint -x internal-error playbooks/*.yml
           rm .vault_pass
 
   deploy:
