@@ -34,7 +34,7 @@ jobs:
       - name: Run ansible-lint
         run: |
           cd ansible
-          ansible-lint playbooks/*.yml -vault-password-file .vault_pass
+          ansible-lint playbooks/*.yml --vault-password-file .vault_pass
           rm .vault_pass
 
   deploy:
