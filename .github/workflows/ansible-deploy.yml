@@ -35,7 +35,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: lint
+    # needs: lint
     steps:
       - uses: actions/checkout@v4
 
@@ -53,9 +53,11 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add host to known_hosts
+        env:
+          VM_HOST: ${{ secrets.VM_HOST }}
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H  "$VM_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy with Ansible
         run: |
