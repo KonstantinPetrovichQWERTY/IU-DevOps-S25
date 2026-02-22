@@ -27,7 +27,7 @@ ansible/
 │   │   │   └── main.yml
 │   │   └── defaults/
 │   │       └── main.yml
-│   └── app_deploy/            # Application deployment
+│   └── web_app_deploy/            # Application deployment
 │       ├── tasks/
 │       │   └── main.yml
 │       ├── handlers/
@@ -75,18 +75,18 @@ ansible/
 
 - Common role (implicitly, for prerequisites)
 
-### App_Deploy Role
+### web_app_Deploy Role
 **Purpose**: Deploys the containerized Python application from Docker Hub.
 
 **Variables**:
 
-- app_port: Container port (8000)
+- web_app_port: Container port (8000)
 
-- app_host_port: Host port (8000)
+- web_app_host_port: Host port (8000)
 
-- app_restart_policy: Container restart policy (unless-stopped)
+- web_app_restart_policy: Container restart policy (unless-stopped)
 
-- app_environment: Environment variables for the app
+- web_app_environment: Environment variables for the app
 
 - health_check_timeout: Timeout for health checks (60s)
 

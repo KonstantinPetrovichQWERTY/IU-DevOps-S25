@@ -1,0 +1,198 @@
+- name: Include wipe tasks
+  include_tasks: wipe.yml
+  tags:
+    - web_app_wipe
+
+- name: Deploy application with Docker Compose
+  block:
+    - name: Create application directory
+      file:
+        path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+      tags:
+        - web_app_deploy
+        - compose
+
+    - name: Check if Docker Hub login is needed
+      shell: |
+        if ! docker system info | grep -q "Username"; then
+          echo "needs_login"
+        else
+          echo "already_logged_in"
+        fi
+      register: docker_login_check
+      changed_when: false
+      check_mode: no
+      tags: deploy
+
+    - name: Log in to Docker Hub (if needed)
+      docker_login:
+        username: "{{ dockerhub_username }}"
+        password: "{{ dockerhub_password }}"
+        reauthorize: no
+      when: docker_login_check.stdout == "needs_login"
+      no_log: true
+      tags: deploy
+
+    - name: Template docker-compose.yml file
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ compose_project_dir | default('/opt/' + web_app_name) }}/docker-compose.yml"
+        mode: '0644'
+        owner: root
+        group: root
+      register: compose_file
+      tags:
+        - web_app_deploy
+        - compose
+        - template
+
+    - name: Check if containers need update
+      community.docker.docker_compose:
+        project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        files:
+          - docker-compose.yml
+        state: present
+        pull: no
+      register: compose_check
+      check_mode: yes  # Dry run to detect changes
+      tags:
+        - web_app_deploy
+        - compose
+        - deploy
+
+    - name: Deploy with Docker Compose (if needed)
+      community.docker.docker_compose:
+        project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        files:
+          - docker-compose.yml
+        state: present
+        pull: yes
+        remove_orphans: yes
+      register: compose_result
+      when: compose_file.changed or compose_check.changed  # Only run if template changed or check indicates changes needed
+      tags:
+        - web_app_deploy
+        - compose
+        - deploy
+
+    - name: Get compose status
+      community.docker.docker_compose:
+        project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        state: present
+      register: compose_status
+      changed_when: false
+      tags:
+        - web_app_deploy
+        - compose
+        - healthcheck
+
+    - name: Wait for application to be ready
+      wait_for:
+        port: "{{ web_app_host_port | default(8000) }}"
+        host: "{{ ansible_default_ipv4.address }}"
+        delay: 5
+        timeout: "{{ health_check_timeout | default(30) }}"
+        state: started
+      when: compose_result is changed  # Only wait if actually deployed
+      tags:
+        - web_app_deploy
+        - compose
+        - healthcheck
+
+    - name: Verify health endpoint
+      uri:
+        url: "http://{{ ansible_default_ipv4.address }}:{{ web_app_host_port | default(8000) }}{{ health_check_path | default('/health') }}"
+        method: GET
+        status_code: 200
+        timeout: 10
+      register: health_result
+      retries: "{{ health_check_retries | default(3) }}"
+      delay: 5
+      until: health_result.status == 200
+      when: compose_result is changed  # Only check if actually deployed
+      tags:
+        - web_app_deploy
+        - compose
+        - healthcheck
+
+    - name: Display deployment status
+      debug:
+        msg:
+          - "Application {{ web_app_name }} deployed successfully with Docker Compose!"
+          - "Project directory: {{ compose_project_dir | default('/opt/' + web_app_name) }}"
+          - "Services:"
+          - "  - {{ web_app_name }}:{{ docker_tag | default('latest') }}"
+          - "  - Port: {{ web_app_host_port | default(8000) }}:{{ web_app_port | default(8000) }}"
+          - "Health check: {{ health_result.status | default('N/A') if compose_result is changed else 'Already running' }}"
+      when: compose_result is changed
+      tags:
+        - web_app_deploy
+        - compose
+        - debug
+
+    - name: Display no-change status
+      debug:
+        msg:
+          - "Application {{ web_app_name }} is already up to date!"
+          - "No deployment changes needed."
+      when: compose_result is not changed and compose_file.changed is false
+      tags:
+        - web_app_deploy
+        - compose
+        - debug
+
+  rescue:
+    - name: Handle deployment failure
+      debug:
+        msg:
+          - "DEPLOYMENT FAILED for {{ web_app_name }}!"
+          - "Error: {{ ansible_failed_result.msg | default('Unknown error') }}"
+      tags:
+        - web_app_deploy
+        - compose
+        - debug
+
+    - name: Get Docker Compose logs for debugging
+      community.docker.docker_compose:
+        project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        state: present
+        logs: yes
+      register: compose_logs
+      ignore_errors: yes
+      tags:
+        - web_app_deploy
+        - compose
+        - debug
+
+    - name: Display error logs
+      debug:
+        var: compose_logs
+      when: compose_logs is defined
+      tags:
+        - web_app_deploy
+        - compose
+        - debug
+
+    - name: Fail with error message
+      fail:
+        msg: "Docker Compose deployment failed for {{ web_app_name }}. Check logs above."
+      tags:
+        - web_app_deploy
+        - compose
+        - debug
+
+  always:
+    - name: Log deployment attempt
+      lineinfile:
+        path: "/var/log/ansible-webapp-deploy.log"
+        line: "{{ ansible_date_time.iso8601 }} - Deployment for {{ web_app_name }} {% if compose_result is defined and compose_result is changed %}SUCCESS{% elif compose_file.changed %}UPDATED{% else %}NO CHANGE{% endif %}"
+        create: yes
+        mode: '0644'
+      tags:
+        - web_app_deploy
+        - compose
+        - logging
