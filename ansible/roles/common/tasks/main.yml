@@ -1,11 +1,98 @@
-- name: Update apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
-  tags: always
+---
+- name: Common role tasks
+  tags: common
+  block:
+    - name: Package management block
+      tags: packages
+      become: true
 
-- name: Install common packages
-  apt:
-    name: "{{ common_packages }}"
-    state: present
-  tags: packages
+      block:
+        - name: Update apt cache
+          ansible.builtin.apt:
+            update_cache: true
+            cache_valid_time: 3600
+          tags: packages_update
+
+        - name: Install common packages
+          ansible.builtin.apt:
+            name: "{{ common_packages }}"
+            state: present
+          tags: packages_install
+
+      rescue:
+        - name: Handle apt update failure
+          ansible.builtin.debug:
+            msg: "Apt update failed, attempting to fix missing packages"
+          tags: packages_update
+
+        - name: Fix missing package dependencies
+          ansible.builtin.apt:
+            update_cache: true
+            cache_valid_time: 3600
+          become: true
+          changed_when: false
+          tags: packages_update
+
+        - name: Retry package installation
+          ansible.builtin.apt:
+            name: "{{ common_packages }}"
+            state: present
+            update_cache: true
+          tags: packages_install
+
+      always:
+        - name: Log package installation completion
+          ansible.builtin.copy:
+            content: |
+              Common role package installation completed at {{ ansible_date_time.iso8601 }}
+              Packages installed: {{ common_packages | join(', ') }}
+            dest: "/tmp/common_role_completion_{{ ansible_date_time.epoch }}.log"
+            mode: "0644"
+          run_once: true
+          tags: packages_log
+
+    - name: User management block
+      tags: users
+      become: true
+
+      block:
+        - name: Create application user
+          ansible.builtin.user:
+            name: "{{ web_app_user | default('appuser') }}"
+            state: present
+            groups: "{{ user_groups | default([]) }}"
+            shell: /bin/bash
+            create_home: true
+          when: create_web_app_user | default(false)
+          tags: users_create
+
+        - name: Configure user SSH keys
+          ansible.posix.authorized_key:
+            user: "{{ web_app_user | default('appuser') }}"
+            state: present
+            key: "{{ item }}"
+          loop: "{{ user_ssh_keys | default([]) }}"
+          when: user_ssh_keys is defined
+          tags: users_ssh
+
+      rescue:
+        - name: Handle user creation failure
+          ansible.builtin.debug:
+            msg: "User creation failed for {{ web_app_user | default('appuser') }}"
+          tags: users_debug
+
+        - name: Get system user list for debugging
+          ansible.builtin.command: "cat /etc/passwd | grep -E '{{ web_app_user | default('appuser') }}'"
+          changed_when: false
+          failed_when: false
+          tags: users_debug
+
+      always:
+        - name: Log user management completion
+          ansible.builtin.lineinfile:
+            path: "/tmp/common_role_users.log"
+            line: "{{ ansible_date_time.iso8601 }} - User management completed for {{ web_app_user | default('appuser') }}"
+            create: true
+            mode: "0644"
+          when: create_web_app_user | default(false)
+          tags: users_log

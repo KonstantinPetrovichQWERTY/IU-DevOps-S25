@@ -1,0 +1,7 @@
+dependencies:
+  - role: docker
+    vars:
+      docker_user: ubuntu
+    tags:
+      - docker
+      - dependencies

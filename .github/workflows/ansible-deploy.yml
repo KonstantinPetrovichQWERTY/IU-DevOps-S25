@@ -1,0 +1,94 @@
+name: Ansible Deployment
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'ansible/**'
+      - '.github/workflows/ansible-deploy.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'ansible/**'
+
+jobs:
+  lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install ansible ansible-lint
+
+      - name: Run ansible-lint
+        run: |
+          cd ansible
+          ansible-lint -x internal-error playbooks/*.yml
+
+  deploy:
+    name: Ansible Deploy
+    runs-on: ubuntu-latest
+    # needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # - name: Setup SSH
+      #   uses: webfactory/ssh-agent@v0.9.0
+      #   with:
+      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # - name: Setup SSH
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+      #     chmod 600 ~/.ssh/id_ed25519
+
+      - name: Debug SSH Connection
+        run: |
+          echo "=== ENVIRONMENT INFO ==="
+          echo "Host: ${{ secrets.VM_HOST }}"
+          
+          echo "=== NETWORK DIAGNOSTICS ==="
+          echo "1. DNS Resolution:"
+          nslookup ${{ secrets.VM_HOST }} || true
+          echo "2. Ping test:"
+          ping -c 4 ${{ secrets.VM_HOST }} || true
+          echo "3. Port 22 connectivity:"
+          nc -zv -w 5 ${{ secrets.VM_HOST }} 22 || true
+          echo "4. Traceroute:"
+          traceroute -m 15 ${{ secrets.VM_HOST }} || true
+          
+          echo "=== SSH DIAGNOSTICS ==="
+          echo "1. SSH key permissions:"
+          ls -la ~/.ssh/
+          echo "2. Testing SSH connection (verbose):"
+          ssh -vvv -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=10 \
+            -o BatchMode=yes \
+            ubuntu@${{ secrets.VM_HOST }} \
+            "echo 'SUCCESS'" || echo "FAILED"
+          
+          echo "=== KNOWN_HOSTS ==="
+          cat ~/.ssh/known_hosts || echo "No known_hosts file"
+
+      - name: Deploy with Ansible
+        run: |
+            cd ansible
+            echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass
+            ansible-playbook playbooks/deploy.yml --vault-password-file /tmp/vault_pass
+            rm /tmp/vault_pass
+
+      - name: Verify Deployment
+        run: |
+            sleep 10
+            curl -f http://${{ secrets.VM_HOST }}:8000 || exit 1
+            curl -f http://${{ secrets.VM_HOST }}:8000/health || exit 1

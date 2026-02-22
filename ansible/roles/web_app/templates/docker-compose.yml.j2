@@ -1,0 +1,9 @@
+version: '{{ docker_compose_version | default("3.8") }}'
+
+services:
+  {{ web_app_name }}:
+    image: {{ docker_image }}:{{ docker_tag | default("latest") }}
+    container_name: {{ web_app_name }}
+    restart: {{ web_app_restart_policy | default("unless-stopped") }}
+    ports:
+      - "{{ web_app_host_port | default(8000) }}:{{ web_app_port | default(8000) }}"
