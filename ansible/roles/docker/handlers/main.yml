@@ -1,4 +1,15 @@
-- name: restart docker
-  service:
+---
+- name: Restart docker
+  ansible.builtin.service:
     name: docker
     state: restarted
+
+- name: Log docker configuration
+  ansible.builtin.lineinfile:
+    path: "/tmp/docker_config_{{ ansible_date_time.date }}.log"
+    line: "{{ ansible_date_time.iso8601 }} - Docker configured for user {{ docker_user }}"
+    create: true
+    mode: "0644"
+  listen: "Log docker configuration"
+  tags:
+    - docker_log

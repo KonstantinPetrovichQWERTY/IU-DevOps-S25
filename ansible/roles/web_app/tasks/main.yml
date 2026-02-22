@@ -1,15 +1,16 @@
+---
 - name: Include wipe tasks
-  include_tasks: wipe.yml
+  ansible.builtin.include_tasks: wipe.yml
   tags:
     - web_app_wipe
 
 - name: Deploy application with Docker Compose
   block:
     - name: Create application directory
-      file:
+      ansible.builtin.file:
         path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
         owner: root
         group: root
       tags:
@@ -17,7 +18,7 @@
         - compose
 
     - name: Check if Docker Hub login is needed
-      shell: |
+      ansible.builtin.shell: |
         if ! docker system info | grep -q "Username"; then
           echo "needs_login"
         else
@@ -25,23 +26,23 @@
         fi
       register: docker_login_check
       changed_when: false
-      check_mode: no
+      check_mode: false
       tags: deploy
 
     - name: Log in to Docker Hub (if needed)
-      docker_login:
+      community.docker.docker_login:
         username: "{{ dockerhub_username }}"
         password: "{{ dockerhub_password }}"
-        reauthorize: no
+        reauthorize: false
       when: docker_login_check.stdout == "needs_login"
       no_log: true
       tags: deploy
 
     - name: Template docker-compose.yml file
-      template:
+      ansible.builtin.template:
         src: docker-compose.yml.j2
         dest: "{{ compose_project_dir | default('/opt/' + web_app_name) }}/docker-compose.yml"
-        mode: '0644'
+        mode: "0644"
         owner: root
         group: root
       register: compose_file
@@ -56,9 +57,9 @@
         files:
           - docker-compose.yml
         state: present
-        pull: no
+        pull: false
       register: compose_check
-      check_mode: yes  # Dry run to detect changes
+      check_mode: true # Dry run to detect changes
       tags:
         - web_app_deploy
         - compose
@@ -70,10 +71,10 @@
         files:
           - docker-compose.yml
         state: present
-        pull: yes
-        remove_orphans: yes
+        pull: true
+        remove_orphans: true
       register: compose_result
-      when: compose_file.changed or compose_check.changed  # Only run if template changed or check indicates changes needed
+      when: compose_file.changed or compose_check.changed # Only run if template changed or check indicates changes needed
       tags:
         - web_app_deploy
         - compose
@@ -91,20 +92,20 @@
         - healthcheck
 
     - name: Wait for application to be ready
-      wait_for:
+      ansible.builtin.wait_for:
         port: "{{ web_app_host_port | default(8000) }}"
         host: "{{ ansible_default_ipv4.address }}"
         delay: 5
         timeout: "{{ health_check_timeout | default(30) }}"
         state: started
-      when: compose_result is changed  # Only wait if actually deployed
+      when: compose_result is changed # Only wait if actually deployed
       tags:
         - web_app_deploy
         - compose
         - healthcheck
 
     - name: Verify health endpoint
-      uri:
+      ansible.builtin.uri:
         url: "http://{{ ansible_default_ipv4.address }}:{{ web_app_host_port | default(8000) }}{{ health_check_path | default('/health') }}"
         method: GET
         status_code: 200
@@ -113,14 +114,14 @@
       retries: "{{ health_check_retries | default(3) }}"
       delay: 5
       until: health_result.status == 200
-      when: compose_result is changed  # Only check if actually deployed
+      when: compose_result is changed # Only check if actually deployed
       tags:
         - web_app_deploy
         - compose
         - healthcheck
 
     - name: Display deployment status
-      debug:
+      ansible.builtin.debug:
         msg:
           - "Application {{ web_app_name }} deployed successfully with Docker Compose!"
           - "Project directory: {{ compose_project_dir | default('/opt/' + web_app_name) }}"
@@ -135,7 +136,7 @@
         - debug
 
     - name: Display no-change status
-      debug:
+      ansible.builtin.debug:
         msg:
           - "Application {{ web_app_name }} is already up to date!"
           - "No deployment changes needed."
@@ -147,7 +148,7 @@
 
   rescue:
     - name: Handle deployment failure
-      debug:
+      ansible.builtin.debug:
         msg:
           - "DEPLOYMENT FAILED for {{ web_app_name }}!"
           - "Error: {{ ansible_failed_result.msg | default('Unknown error') }}"
@@ -160,16 +161,16 @@
       community.docker.docker_compose:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: present
-        logs: yes
+        logs: true
       register: compose_logs
-      ignore_errors: yes
+      ignore_errors: true
       tags:
         - web_app_deploy
         - compose
         - debug
 
     - name: Display error logs
-      debug:
+      ansible.builtin.debug:
         var: compose_logs
       when: compose_logs is defined
       tags:
@@ -178,7 +179,7 @@
         - debug
 
     - name: Fail with error message
-      fail:
+      ansible.builtin.fail:
         msg: "Docker Compose deployment failed for {{ web_app_name }}. Check logs above."
       tags:
         - web_app_deploy
@@ -187,11 +188,12 @@
 
   always:
     - name: Log deployment attempt
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: "/var/log/ansible-webapp-deploy.log"
-        line: "{{ ansible_date_time.iso8601 }} - Deployment for {{ web_app_name }} {% if compose_result is defined and compose_result is changed %}SUCCESS{% elif compose_file.changed %}UPDATED{% else %}NO CHANGE{% endif %}"
-        create: yes
-        mode: '0644'
+        line: "{{ ansible_date_time.iso8601 }} - Deployment for {{ web_app_name }} {% if compose_result is defined and compose_result is changed %}SUCCESS{% elif
+          compose_file.changed %}UPDATED{% else %}NO CHANGE{% endif %}"
+        create: true
+        mode: "0644"
       tags:
         - web_app_deploy
         - compose

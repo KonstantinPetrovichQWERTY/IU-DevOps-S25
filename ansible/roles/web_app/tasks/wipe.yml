@@ -1,7 +1,11 @@
+---
 - name: Wipe web application
+  when: web_app_wipe | bool
+  tags:
+    - web_app_wipe
   block:
     - name: Check if application directory exists
-      stat:
+      ansible.builtin.stat:
         path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
       register: app_dir_check
       tags:
@@ -11,15 +15,15 @@
       community.docker.docker_compose:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: absent
-        remove_orphans: yes
+        remove_orphans: true
       when: app_dir_check.stat.exists
-      ignore_errors: yes  # Continue if compose file missing or project not found
+      ignore_errors: true # Continue if compose file missing or project not found
       register: compose_down_result
       tags:
         - web_app_wipe
 
     - name: Remove docker-compose.yml file
-      file:
+      ansible.builtin.file:
         path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}/docker-compose.yml"
         state: absent
       when: app_dir_check.stat.exists
@@ -27,7 +31,7 @@
         - web_app_wipe
 
     - name: Remove application directory
-      file:
+      ansible.builtin.file:
         path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: absent
       when: app_dir_check.stat.exists
@@ -35,6 +39,9 @@
         - web_app_wipe
 
     - name: Optionally remove Docker images
+      tags:
+        - web_app_wipe
+
       block:
         - name: List Docker images for the application
           community.docker.docker_image_info:
@@ -51,12 +58,9 @@
           when:
             - web_app_remove_images | default(false) | bool
             - image_info.images | length > 0
-          ignore_errors: yes
-      tags:
-        - web_app_wipe
-
+          ignore_errors: true
     - name: Log wipe completion
-      debug:
+      ansible.builtin.debug:
         msg:
           - "Application {{ web_app_name }} wiped successfully"
           - "Directory removed: {{ compose_project_dir | default('/opt/' + web_app_name) }}"
@@ -66,14 +70,10 @@
         - web_app_wipe
 
     - name: Write wipe to log file
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: "/var/log/ansible-webapp-deploy.log"
         line: "{{ ansible_date_time.iso8601 }} - WIPE: Application {{ web_app_name }} completely removed"
-        create: yes
-        mode: '0644'
+        create: true
+        mode: "0644"
       tags:
         - web_app_wipe
-
-  when: web_app_wipe | bool
-  tags:
-    - web_app_wipe
