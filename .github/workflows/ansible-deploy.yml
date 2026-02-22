@@ -47,17 +47,12 @@ jobs:
       - name: Install Ansible
         run: pip install ansible
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add host to known_hosts
-        env:
-          VM_HOST: ${{ secrets.VM_HOST }}
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H  "$VM_HOST" >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy with Ansible
         run: |
