@@ -52,19 +52,33 @@ jobs:
       #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
       #     chmod 600 ~/.ssh/id_ed25519
 
-      - name: Setup SSH with relaxed settings for debugging
+      - name: Debug SSH Connection
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          # Отключаем strict host key checking для теста
-          echo "Host ${{ secrets.VM_HOST }}" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-          echo "  UserKnownHostsFile /dev/null" >> ~/.ssh/config
-          echo "  LogLevel DEBUG" >> ~/.ssh/config
+          echo "=== ENVIRONMENT INFO ==="
+          echo "Host: ${{ secrets.VM_HOST }}"
           
-          # Тест подключения
-          ssh ubuntu@${{ secrets.VM_HOST }} "echo 'Connected!'"
+          echo "=== NETWORK DIAGNOSTICS ==="
+          echo "1. DNS Resolution:"
+          nslookup ${{ secrets.VM_HOST }} || true
+          echo "2. Ping test:"
+          ping -c 4 ${{ secrets.VM_HOST }} || true
+          echo "3. Port 22 connectivity:"
+          nc -zv -w 5 ${{ secrets.VM_HOST }} 22 || true
+          echo "4. Traceroute:"
+          traceroute -m 15 ${{ secrets.VM_HOST }} || true
+          
+          echo "=== SSH DIAGNOSTICS ==="
+          echo "1. SSH key permissions:"
+          ls -la ~/.ssh/
+          echo "2. Testing SSH connection (verbose):"
+          ssh -vvv -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=10 \
+            -o BatchMode=yes \
+            ubuntu@${{ secrets.VM_HOST }} \
+            "echo 'SUCCESS'" || echo "FAILED"
+          
+          echo "=== KNOWN_HOSTS ==="
+          cat ~/.ssh/known_hosts || echo "No known_hosts file"
 
       - name: Deploy with Ansible
         run: |
