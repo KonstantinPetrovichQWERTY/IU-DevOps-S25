@@ -52,7 +52,7 @@
         - template
 
     - name: Check if containers need update
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         files:
           - docker-compose.yml
@@ -66,7 +66,7 @@
         - deploy
 
     - name: Deploy with Docker Compose (if needed)
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         files:
           - docker-compose.yml
@@ -81,7 +81,7 @@
         - deploy
 
     - name: Get compose status
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: present
       register: compose_status
@@ -158,7 +158,7 @@
         - debug
 
     - name: Get Docker Compose logs for debugging
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: present
         logs: true

@@ -12,7 +12,7 @@
         - web_app_wipe
 
     - name: Stop and remove containers with Docker Compose
-      community.docker.docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
         state: absent
         remove_orphans: true
