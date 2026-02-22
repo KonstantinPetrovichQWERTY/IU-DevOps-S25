@@ -28,14 +28,10 @@ jobs:
         run: |
           pip install ansible ansible-lint
 
-      - name: Create tmp vault password for linting
-        run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
-
       - name: Run ansible-lint
         run: |
           cd ansible
           ansible-lint -x internal-error playbooks/*.yml
-          rm .vault_pass
 
   deploy:
     runs-on: ubuntu-latest
