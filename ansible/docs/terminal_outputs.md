@@ -9,11 +9,6 @@ iu-devops-vm | SUCCESS => {
 }
 
 $ ansible all -i inventory/hosts.ini -m ping
-Command 'nsible' not found, did you mean:
-  command 'ansible' from deb ansible-core (2.12.0-1ubuntu0.1)
-  command 'ansible' from deb ansible (2.10.7+merged+base+2.10.8+dfsg-1)
-Try: sudo apt install <deb name>
-$ ansible all -i inventory/hosts.ini -m ping
 iu-devops-vm | SUCCESS => {
     "changed": false,
     "ping": "pong"

@@ -9,7 +9,7 @@
         path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
       register: app_dir_check
       tags:
-        - web_app_wipe
+        - wipe_check_dir
 
     - name: Stop and remove containers with Docker Compose
       community.docker.docker_compose_v2:
@@ -20,7 +20,7 @@
       ignore_errors: true # Continue if compose file missing or project not found
       register: compose_down_result
       tags:
-        - web_app_wipe
+        - wipe_containers
 
     - name: Remove docker-compose.yml file
       ansible.builtin.file:
@@ -28,7 +28,7 @@
         state: absent
       when: app_dir_check.stat.exists
       tags:
-        - web_app_wipe
+        - wipe_compose_file
 
     - name: Remove application directory
       ansible.builtin.file:
@@ -36,11 +36,11 @@
         state: absent
       when: app_dir_check.stat.exists
       tags:
-        - web_app_wipe
+        - wipe_app_dir
 
     - name: Optionally remove Docker images
       tags:
-        - web_app_wipe
+        - wipe_images
 
       block:
         - name: List Docker images for the application
@@ -49,6 +49,8 @@
               - "{{ dockerhub_username }}/{{ web_app_name }}:{{ docker_tag | default('latest') }}"
           register: image_info
           when: web_app_remove_images | default(false) | bool
+          tags:
+            - wipe_images_list
 
         - name: Remove Docker images
           community.docker.docker_image:
@@ -59,6 +61,9 @@
             - web_app_remove_images | default(false) | bool
             - image_info.images | length > 0
           ignore_errors: true
+          tags:
+            - wipe_images_remove
+
     - name: Log wipe completion
       ansible.builtin.debug:
         msg:
@@ -67,7 +72,7 @@
           - "Containers stopped: {{ 'Yes' if compose_down_result is not skipped else 'N/A' }}"
           - "Images removed: {{ 'Yes' if web_app_remove_images | default(false) | bool else 'No' }}"
       tags:
-        - web_app_wipe
+        - wipe_log_debug
 
     - name: Write wipe to log file
       ansible.builtin.lineinfile:
@@ -76,4 +81,4 @@
         create: true
         mode: "0644"
       tags:
-        - web_app_wipe
+        - wipe_log_file

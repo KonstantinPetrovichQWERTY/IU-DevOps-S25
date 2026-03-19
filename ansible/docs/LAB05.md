@@ -3,9 +3,11 @@
 ## 1. Architecture Overview
 
 ### Ansible version used
+
 ansible 2.10.8
 
 ### Target VM OS and version
+
 Ubuntu 22.04
 
 ### Structure
@@ -98,10 +100,10 @@ ansible/
 
 - Docker role
 
-
 ## 3. Idempotency Demonstration
 
-### Terminal outputs 
+### Terminal outputs
+
 Check this [file](/ansible/docs/terminal_outputs.md)
 
 ### Analysis: What changed first time? What didn't change second time?

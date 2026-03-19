@@ -80,7 +80,7 @@ Terraform v1.10.5
 - Separate files for different concerns
 - Descriptive resource naming conventions
 
-### Terminal outputs
+### Terminal outputs Pulumi
 
 Check this [file](/terraform/docs/terminal_outputs.md)
 
@@ -116,18 +116,28 @@ pulumi v3.223.0
 ## Advantages you discovered
 
 - Familiar Programming Constructs
-- Stronger Type Checking 
+- Stronger Type Checking
 
-### Terminal outputs
+## How to use
 
-Check this [file](/terraform/docs/terminal_outputs.md)
+```bash
+$terraform plan
+--- to check what terraform is going to do
+$terraform apply
+--- to apply changes
+$terraform destroy
+--- to destroy changes
+```
+
+### Terminal outputs terraform
+
+Check this [file](/docs/terminal_outputs.md)
 
 ## 4. Terraform vs Pulumi Comparison
 
 ### Ease of Learning: Which was easier to learn and why?
 
 Pulumi was easier to learn because I could use familiar Python syntax instead of learning HCL from scratch. The ability to leverage existing programming knowledge made the learning curve much gentler compared to Terraform's domain-specific language.
-
 
 ### Code Readability: Which is more readable for you?
 
@@ -143,8 +153,7 @@ Terraform has better documentation with more comprehensive examples, community r
 
 ### Use Case: When would you use Terraform? When Pulumi?
 
-Use Terraform for pure infrastructure provisioning in multi-cloud environments with teams already familiar with HCL. Use Pulumi when infrastructure code needs complex logic, when working with developers who know general-purpose languages, or when building reusable infrastructure libraries.
-
+Use Terraform for pure infrastructure provisioning in multi-cloud environments with teams already familiar with HCL. Use Pulumi when infrastructure code needs complex logic, when working with developers who know general-purpose languages, or when building reusable infrastructure libraries.s
 
 ## 5. Lab 5 Preparation & Cleanup
 

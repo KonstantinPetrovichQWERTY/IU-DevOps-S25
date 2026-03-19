@@ -57,7 +57,7 @@
         files:
           - docker-compose.yml
         state: present
-        pull: false
+        pull: never
       register: compose_check
       check_mode: true # Dry run to detect changes
       tags:
@@ -71,7 +71,7 @@
         files:
           - docker-compose.yml
         state: present
-        pull: true
+        pull: always
         remove_orphans: true
       register: compose_result
       when: compose_file.changed or compose_check.changed # Only run if template changed or check indicates changes needed
@@ -158,10 +158,8 @@
         - debug
 
     - name: Get Docker Compose logs for debugging
-      community.docker.docker_compose_v2:
-        project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
-        state: present
-        logs: true
+      ansible.builtin.shell: |
+        docker compose -f "{{ compose_project_dir | default('/opt/' + web_app_name) }}/docker-compose.yml" logs --tail=100
       register: compose_logs
       ignore_errors: true
       tags:
