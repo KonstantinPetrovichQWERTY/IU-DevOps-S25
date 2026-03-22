@@ -30,7 +30,13 @@ jobs:
         run: |
           pip install ansible ansible-lint
 
+      - name: Decrypt Vault password
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass
+
       - name: Run ansible-lint
+        env:
+          ANSIBLE_VAULT_PASSWORD_FILE: /tmp/vault_pass
         run: |
           cd ansible
           ansible-lint playbooks/*.yml
@@ -63,11 +69,12 @@ jobs:
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass
 
       - name: Run Ansible Playbook
+        env:
+          ANSIBLE_VAULT_PASSWORD_FILE: /tmp/vault_pass
         run: |
           cd ansible
-          ansible-playbook playbooks/deploy.yml \
-            -i inventory/hosts.ini \
-            --vault-password-file /tmp/vault_pass
+          ansible-playbook playbooks/site.yml \
+            -i inventory/hosts.ini
 
       - name: Verify deployment
         run: |
