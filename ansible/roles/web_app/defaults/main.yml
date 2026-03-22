@@ -9,9 +9,9 @@ web_app_environment:
   ENVIRONMENT: production
   LOG_LEVEL: info
 
-health_check_path: /health
-health_check_timeout: 30
-health_check_retries: 3
+web_app_health_check_path: /health
+web_app_health_check_timeout: 30
+web_app_health_check_retries: 3
 
 web_app_wipe: false
 web_app_remove_images: false
