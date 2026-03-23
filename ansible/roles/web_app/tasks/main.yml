@@ -151,7 +151,7 @@
     - name: Log deployment attempt
       ansible.builtin.lineinfile:
         path: "/var/log/ansible-webapp-deploy.log"
-        line: "{{ ansible_date_time.iso8601 }} - Deployment for {{ web_app_name }} {% if web_app_compose_result is defined and compose_result is changed %}
+        line: "{{ ansible_facts.date_time.iso8601 }} - Deployment for {{ web_app_name }} {% if web_app_compose_result is defined and web_app_compose_result is changed %}
           SUCCESS{% elif web_app_compose_file is defined and web_app_compose_file.changed %}UPDATED{% else %}NO CHANGE{% endif %}"
         create: true
         mode: "0644"
