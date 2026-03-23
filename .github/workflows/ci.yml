@@ -4,9 +4,17 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'app_python/**'
+      - '.github/workflows/ci.yml'
+
   pull_request:
     branches:
       - master
+    paths:
+      - 'app_python/**'
+      - '.github/workflows/ci.yml'
+
 
 jobs:
   build-and-test:

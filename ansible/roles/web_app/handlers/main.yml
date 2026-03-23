@@ -1,0 +1,52 @@
+---
+- name: Restart app
+  community.docker.docker_container:
+    name: "{{ web_app_container_name }}"
+    state: started
+    restart: true
+  listen: "restart application"
+
+- name: Wait for application to be ready
+  ansible.builtin.wait_for:
+    port: "{{ web_app_host_port | default(8000) }}"
+    host: "{{ ansible_default_ipv4.address }}"
+    delay: 5
+    timeout: "{{ web_app_health_check_timeout | default(30) }}"
+    state: started
+  listen: Wait for application to be ready
+  tags:
+    - web_app_deploy
+    - compose
+    - healthcheck
+
+- name: Verify health endpoint
+  ansible.builtin.uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ web_app_host_port | default(8000) }}{{ web_app_health_check_path | default('/health') }}"
+    method: GET
+    status_code: 200
+    timeout: 10
+  register: web_app_health_result
+  retries: "{{ web_app_health_check_retries | default(3) }}"
+  delay: 5
+  until: web_app_health_result.status == 200
+  listen: Verify health endpoint
+  tags:
+    - web_app_deploy
+    - compose
+    - healthcheck
+
+
+- name: Display deployment status
+  ansible.builtin.debug:
+    msg:
+      - "Application {{ web_app_name }} deployed successfully with Docker Compose!"
+      - "Project directory: {{ compose_project_dir | default('/opt/' + web_app_name) }}"
+      - "Services:"
+      - "  - {{ web_app_name }}:{{ docker_tag | default('latest') }}"
+      - "  - Port: {{ web_app_host_port | default(8000) }}:{{ web_app_port | default(8000) }}"
+      - "Health check: {{ web_app_health_result.status | default('N/A') if web_app_compose_result is changed else 'Already running' }}"
+  listen: Display deployment status
+  tags:
+    - web_app_deploy
+    - compose
+    - debug

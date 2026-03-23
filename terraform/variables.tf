@@ -35,10 +35,5 @@ variable "environment" {
 variable "ssh_public_key_path" {
   description = "Path to SSH public key file"
   type        = string
-  default     = "~/.ssh/id_ed25519.pub"
-}
-
-variable "your_ip" {
-  description = "Your public IP address for SSH access"
-  type        = string
+  default     = "~/.ssh/ssh_public_key_path.pub"
 }

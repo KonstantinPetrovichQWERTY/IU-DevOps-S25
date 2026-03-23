@@ -1,0 +1,83 @@
+---
+- name: Wipe web application
+  when: web_app_wipe | bool
+  tags:
+    - web_app_wipe
+  block:
+    - name: Check if application directory exists
+      ansible.builtin.stat:
+        path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+      register: web_app_app_dir_check
+      tags:
+        - wipe_check_dir
+
+    - name: Stop and remove containers with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        state: absent
+        remove_orphans: true
+      when: web_app_app_dir_check.stat.exists
+      ignore_errors: true # Continue if compose file missing or project not found
+      register: web_app_compose_down_result
+      tags:
+        - wipe_containers
+
+    - name: Remove docker-compose.yml file
+      ansible.builtin.file:
+        path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}/docker-compose.yml"
+        state: absent
+      when: web_app_app_dir_check.stat.exists
+      tags:
+        - wipe_compose_file
+
+    - name: Remove application directory
+      ansible.builtin.file:
+        path: "{{ compose_project_dir | default('/opt/' + web_app_name) }}"
+        state: absent
+      when: web_app_app_dir_check.stat.exists
+      tags:
+        - wipe_app_dir
+
+    - name: Optionally remove Docker images
+      tags:
+        - wipe_images
+
+      block:
+        - name: List Docker images for the application
+          community.docker.docker_image_info:
+            name:
+              - "{{ dockerhub_username }}/{{ web_app_name }}:{{ docker_tag | default('latest') }}"
+          register: web_app_image_info
+          when: web_app_remove_images | default(false) | bool
+          tags:
+            - wipe_images_list
+
+        - name: Remove Docker images
+          community.docker.docker_image:
+            name: "{{ dockerhub_username }}/{{ web_app_name }}"
+            tag: "{{ docker_tag | default('latest') }}"
+            state: absent
+          when:
+            - web_app_remove_images | default(false) | bool
+            - web_app_image_info.images | length > 0
+          tags:
+            - wipe_images_remove
+
+    - name: Log wipe completion
+      ansible.builtin.debug:
+        msg:
+          - "Application {{ web_app_name }} wiped successfully"
+          - "Directory removed: {{ compose_project_dir | default('/opt/' + web_app_name) }}"
+          - "Containers stopped: {{ 'Yes' if web_app_compose_down_result is not skipped else 'N/A' }}"
+          - "Images removed: {{ 'Yes' if web_app_remove_images | default(false) | bool else 'No' }}"
+      tags:
+        - wipe_log_debug
+
+    - name: Write wipe to log file
+      ansible.builtin.lineinfile:
+        path: "/var/log/ansible-webapp-deploy.log"
+        line: "{{ ansible_facts.date_time.iso8601 }} - WIPE: Application {{ web_app_name }} completely removed"
+        create: true
+        mode: "0644"
+      tags:
+        - wipe_log_file

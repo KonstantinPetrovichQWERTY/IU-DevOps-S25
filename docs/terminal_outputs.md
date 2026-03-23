@@ -4,7 +4,7 @@
 ## terraform plan 
 
 ```bash
-PS D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\terraform> terraform plan                                                                                     
+$terraform plan                                                                                     
 data.yandex_compute_image.ubuntu: Reading...
 data.yandex_compute_image.ubuntu: Read complete after 0s [id=fd84es6pnho7mpbjerv1]
 
@@ -198,7 +198,7 @@ Changes to Outputs:
 ## terraform apply
 
 ```bash
-PS D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\terraform> terraform apply
+$terraform apply
 data.yandex_compute_image.ubuntu: Reading...
 data.yandex_compute_image.ubuntu: Read complete after 0s [id=fd84es6pnho7mpbjerv1]
 
@@ -412,7 +412,7 @@ Outputs:
 ## SSH connection
 
 ```bash
-PS D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\terraform> ssh ubuntu@178.154.192.135
+$ssh ubuntu@178.154.192.135
 
 Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.4.0-216-generic x86_64)
 
@@ -457,7 +457,7 @@ ubuntu@iu-devops-vm:~$
 ## terraform destroy
 
 ```bash
-PS D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\terraform> terraform destroy
+$terraform destroy
 data.yandex_compute_image.ubuntu: Reading...
 yandex_vpc_network.network: Refreshing state... [id=enpudej5rmfcmmjkbu16]
 data.yandex_compute_image.ubuntu: Read complete after 0s [id=fd84es6pnho7mpbjerv1]
@@ -696,7 +696,7 @@ Destroy complete! Resources: 4 destroyed.
 ## pulumi preview
 
 ```bash
-D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\pulumi>pulumi preview
+$pulumi preview
 Previewing update (dev)
 
 View in Browser (Ctrl+O): https://app.pulumi.com/KonstantinPetrovichQWERTY-org/iu-devops-vm/dev/previews/7556195f-37e3-468d-85ea-53394e76d3ba
@@ -726,7 +726,7 @@ Resources:
 ## pulumi up
 
 ```bash
-(venv) D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\pulumi>pulumi up
+$pulumi up
 Previewing update (dev)
 
 View in Browser (Ctrl+O): https://app.pulumi.com/KonstantinPetrovichQWERTY-org/iu-devops-vm/dev/previews/ed5953dd-6738-4646-abbe-c0129ddb88cc
@@ -778,7 +778,7 @@ Duration: 46s
 ## VM
 
 ```bash 
-(venv) D:\Innopolis\ucheba\DevOps\IU-DevOps-S25\pulumi>ssh ubuntu@89.169.166.147
+$ssh ubuntu@89.169.166.147
 The authenticity of host '89.169.166.147 (89.169.166.147)' can't be established.
 ED25519 key fingerprint is SHA256:APtlZmZSedKHWlqsblEHKNWEVcqrc8vpG8c/m1lx978.
 This key is not known by any other names.
