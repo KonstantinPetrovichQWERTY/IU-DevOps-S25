@@ -76,7 +76,7 @@ This service serves as the starting point for a comprehensive monitoring solutio
 To start the FastAPI application, run the following command:
 
 ```bash
-uvicorn app_python.src.main:app --reload
+uvicorn app:app --reload
 ```
 
 - The `--reload` flag enables auto-reloading, so the server restarts whenever you make changes to the code.
@@ -127,13 +127,13 @@ The application can be configured using environment variables:
 
 ```bash
 # Custom port
-PORT=8080 uvicorn app_python.src.main:app --reload
+PORT=8080 uvicorn app_python.app:app --reload
 
 # Local only with debug mode
-HOST=127.0.0.1 DEBUG=True uvicorn app_python.src.main:app --reload
+HOST=127.0.0.1 DEBUG=True uvicorn app_python.app:app --reload
 
 # Production configuration
-HOST=0.0.0.0 PORT=3000 uvicorn app_python.src.main:app --reload
+HOST=0.0.0.0 PORT=3000 uvicorn app_python.app:app --reload
 ```
 
 ---

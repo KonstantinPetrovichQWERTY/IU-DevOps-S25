@@ -1,8 +1,10 @@
 import os
 from fastapi import FastAPI, Request
 from datetime import datetime
+from datetime import timezone
 import pytz
 import logging
+import json
 
 import platform
 import socket
@@ -12,17 +14,76 @@ HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", 5000))
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
+
 # Logging config
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
+class JSONFormatter(logging.Formatter):
+    """Formats application logs as JSON for log aggregation systems."""
+
+    STANDARD_FIELDS = {
+        "name",
+        "msg",
+        "args",
+        "levelname",
+        "levelno",
+        "pathname",
+        "filename",
+        "module",
+        "exc_info",
+        "exc_text",
+        "stack_info",
+        "lineno",
+        "funcName",
+        "created",
+        "msecs",
+        "relativeCreated",
+        "thread",
+        "threadName",
+        "processName",
+        "process",
+        "message",
+        "asctime",
+    }
+
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        for key, value in record.__dict__.items():
+            if key in self.STANDARD_FIELDS or key.startswith("_"):
+                continue
+            if isinstance(value, (str, int, float, bool)) or value is None:
+                payload[key] = value
+
+        if record.exc_info:
+            payload["exception"] = self.formatException(record.exc_info)
+
+        return json.dumps(payload, ensure_ascii=True)
+
+
+logger = logging.getLogger("devops-info-service")
+logger.setLevel(logging.INFO)
+logger.handlers.clear()
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(JSONFormatter())
+logger.addHandler(stream_handler)
+logger.propagate = False
 
 
 app = FastAPI()
 start_time = datetime.now()
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Logs application startup for deployment visibility."""
+    logger.info(
+        "Application startup complete",
+        extra={"event": "startup", "host": HOST, "port": PORT},
+    )
 
 
 # Service function
@@ -38,16 +99,42 @@ def get_uptime():
 # Logging middleware. Logs all requests
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
+    client_ip = request.client.host if request.client else "unknown"
     logger.info(
-        msg=(
-            f"Incoming request: {request.method} {request.url.path} "
-            f"from {request.client.host}"
-        )
+        "Incoming request",
+        extra={
+            "event": "request_in",
+            "method": request.method,
+            "path": request.url.path,
+            "client_ip": client_ip,
+        },
     )
 
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception(
+            "Request processing failed",
+            extra={
+                "event": "request_error",
+                "method": request.method,
+                "path": request.url.path,
+                "client_ip": client_ip,
+                "status_code": 500,
+            },
+        )
+        raise
 
-    logger.info(f"Outgoing response: Status {response.status_code}")
+    logger.info(
+        "Outgoing response",
+        extra={
+            "event": "request_out",
+            "method": request.method,
+            "path": request.url.path,
+            "client_ip": client_ip,
+            "status_code": response.status_code,
+        },
+    )
     return response
 
 
