@@ -126,19 +126,65 @@ class TestHealthEndpoint:
             pytest.fail(f"Invalid timestamp format: {timestamp}")
 
 
+# ==================== METRICS ENDPOINT TESTS ====================
+
+
+class TestMetricsEndpoint:
+    """Test suite for the Prometheus metrics endpoint (GET /metrics)"""
+
+    def test_metrics_endpoint_exposed(self):
+        """Test that /metrics endpoint is available and returns text metrics"""
+        response = client.get("/metrics")
+        assert response.status_code == 200
+        assert "text/plain" in response.headers.get("content-type", "")
+
+        metrics_text = response.text
+        assert "http_requests_total" in metrics_text
+        assert "http_request_duration_seconds" in metrics_text
+        assert "http_requests_in_progress" in metrics_text
+
+    def test_metrics_contain_required_labels(self):
+        """Test that HTTP metrics include method, endpoint, status_code labels"""
+        client.get("/")
+        client.get("/health")
+
+        response = client.get("/metrics")
+        metrics_text = response.text
+
+        assert 'method="GET"' in metrics_text
+        assert 'endpoint="/"' in metrics_text
+        assert 'endpoint="/health"' in metrics_text
+        assert 'status_code="200"' in metrics_text
+
+    def test_application_specific_metrics_present(self):
+        """Test that application-specific business metrics are exported"""
+        client.get("/")
+        response = client.get("/metrics")
+        metrics_text = response.text
+
+        assert "devops_info_endpoint_calls_total" in metrics_text
+        assert "devops_info_system_collection_seconds" in metrics_text
+
+
 # ==================== CONFIGURATION TESTS ====================
 
 
 class TestConfiguration:
     """Test environment configuration handling"""
 
-    @patch.dict(os.environ, {"PORT": "8080"})
+    @patch.dict(os.environ, {"PORT": "8000"})
     def test_port_configuration(self):
         """Test that PORT environment variable is parsed correctly"""
         import importlib
         import app
-
+        from prometheus_client import REGISTRY
+        
+        # Очищаем регистр метрик перед перезагрузкой
+        collectors = list(REGISTRY._collector_to_names.keys())
+        for collector in collectors:
+            REGISTRY.unregister(collector)
+        
         importlib.reload(app)
-
+        
         assert hasattr(app, "PORT")
-        assert app.PORT == 8080
+        assert app.PORT == 8000
