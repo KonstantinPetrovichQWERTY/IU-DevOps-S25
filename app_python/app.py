@@ -14,6 +14,7 @@ HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", 5000))
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
+
 # Logging config
 class JSONFormatter(logging.Formatter):
     """Formats application logs as JSON for log aggregation systems."""
