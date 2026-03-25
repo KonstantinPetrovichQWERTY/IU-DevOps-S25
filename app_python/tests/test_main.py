@@ -144,7 +144,7 @@ class TestMetricsEndpoint:
         assert "http_requests_in_progress" in metrics_text
 
     def test_metrics_contain_required_labels(self):
-        """Test that HTTP metrics include method, endpoint, status_code labels"""
+        """Test that HTTP metrics include method, endpoint labels"""
         client.get("/")
         client.get("/health")
 
@@ -178,13 +178,13 @@ class TestConfiguration:
         import importlib
         import app
         from prometheus_client import REGISTRY
-        
+
         # Очищаем регистр метрик перед перезагрузкой
         collectors = list(REGISTRY._collector_to_names.keys())
         for collector in collectors:
             REGISTRY.unregister(collector)
-        
+
         importlib.reload(app)
-        
+
         assert hasattr(app, "PORT")
         assert app.PORT == 8000
