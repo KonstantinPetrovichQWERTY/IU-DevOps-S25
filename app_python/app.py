@@ -1,10 +1,18 @@
 import os
-from fastapi import FastAPI, Request
+import time
+from fastapi import FastAPI, Request, Response
 from datetime import datetime
 from datetime import timezone
 import pytz
 import logging
 import json
+from prometheus_client import (
+    Counter,
+    Gauge,
+    Histogram,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+)
 
 import platform
 import socket
@@ -77,6 +85,37 @@ app = FastAPI()
 start_time = datetime.now()
 
 
+# Prometheus metrics
+http_requests_total = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["method", "endpoint", "status_code"],
+)
+
+http_request_duration_seconds = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request duration in seconds",
+    ["method", "endpoint", "status_code"],
+)
+
+http_requests_in_progress = Gauge(
+    "http_requests_in_progress",
+    "HTTP requests currently being processed",
+    ["method", "endpoint", "status_code"],
+)
+
+endpoint_calls_total = Counter(
+    "devops_info_endpoint_calls_total",
+    "Total calls to application endpoints",
+    ["endpoint"],
+)
+
+system_info_collection_seconds = Histogram(
+    "devops_info_system_collection_seconds",
+    "Time spent collecting system information",
+)
+
+
 @app.on_event("startup")
 async def startup_event():
     """Logs application startup for deployment visibility."""
@@ -96,9 +135,32 @@ def get_uptime():
     return {"seconds": seconds, "human": f"{hours} hours, {minutes} minutes"}
 
 
-# Logging middleware. Logs all requests
+def get_endpoint_label(request: Request) -> str:
+    """Returns low-cardinality endpoint labels for metrics."""
+    route = request.scope.get("route")
+    if route and hasattr(route, "path"):
+        return route.path
+
+    path = request.url.path
+    if path in {"/", "/health", "/metrics"}:
+        return path
+    return "other"
+
+
+# Logging middleware. Logs all requests and records Prometheus metrics.
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
+    start_timer = time.perf_counter()
+    status_code = 500
+    method = request.method
+    endpoint = get_endpoint_label(request)
+    in_progress_metric = http_requests_in_progress.labels(
+        method=method,
+        endpoint=endpoint,
+        status_code="in_progress",
+    )
+    in_progress_metric.inc()
+
     client_ip = request.client.host if request.client else "unknown"
     logger.info(
         "Incoming request",
@@ -112,6 +174,7 @@ async def log_requests(request: Request, call_next):
 
     try:
         response = await call_next(request)
+        status_code = response.status_code
     except Exception:
         logger.exception(
             "Request processing failed",
@@ -124,6 +187,19 @@ async def log_requests(request: Request, call_next):
             },
         )
         raise
+    finally:
+        duration = time.perf_counter() - start_timer
+        http_requests_total.labels(
+            method=method,
+            endpoint=endpoint,
+            status_code=str(status_code),
+        ).inc()
+        http_request_duration_seconds.labels(
+            method=method,
+            endpoint=endpoint,
+            status_code=str(status_code),
+        ).observe(duration)
+        in_progress_metric.dec()
 
     logger.info(
         "Outgoing response",
@@ -139,20 +215,33 @@ async def log_requests(request: Request, call_next):
 
 
 @app.get(
+    "/metrics",
+    description="Prometheus metrics",
+    include_in_schema=False,
+)
+def get_metrics():
+    """Exposes Prometheus metrics."""
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get(
     "/",
     description="Service information",
 )
 def get_service_information(request: Request):
     """Service and system information"""
 
-    utc_now = datetime.now(pytz.utc)
+    endpoint_calls_total.labels(endpoint="/").inc()
 
-    hostname = socket.gethostname()
-    platform_name = platform.system()
-    platform_version = platform.version()
-    architecture = platform.machine()
-    python_version = platform.python_version()
-    cpu_count = os.cpu_count()
+    with system_info_collection_seconds.time():
+        utc_now = datetime.now(pytz.utc)
+
+        hostname = socket.gethostname()
+        platform_name = platform.system()
+        platform_version = platform.version()
+        architecture = platform.machine()
+        python_version = platform.python_version()
+        cpu_count = os.cpu_count()
 
     uptime = get_uptime()
 
@@ -194,6 +283,11 @@ def get_service_information(request: Request):
                 "method": "GET",
                 "description": "Health check"
             },
+            {
+                "path": "/metrics",
+                "method": "GET",
+                "description": "Prometheus metrics"
+            },
         ],
     }
 
@@ -205,6 +299,7 @@ def get_service_information(request: Request):
 )
 def health_check():
     """Health check endpoint"""
+    endpoint_calls_total.labels(endpoint="/health").inc()
     uptime = get_uptime()
 
     return {
