@@ -1,0 +1,33 @@
+{{/* Expand the chart name. */}}
+{{- define "devops-info-chart.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/* Create a fully qualified app name. */}}
+{{- define "devops-info-chart.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/* Chart label. */}}
+{{- define "devops-info-chart.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/* Common labels. */}}
+{{- define "devops-info-chart.labels" -}}
+helm.sh/chart: {{ include "devops-info-chart.chart" . }}
+{{ include "devops-info-chart.selectorLabels" . }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/* Labels used by selectors. */}}
+{{- define "devops-info-chart.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "devops-info-chart.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
