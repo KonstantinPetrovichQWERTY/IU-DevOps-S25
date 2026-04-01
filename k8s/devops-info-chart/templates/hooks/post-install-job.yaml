@@ -1,0 +1,42 @@
+{{- if .Values.hookJobs.postInstall.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "devops-info-chart.fullname" . }}-post-install
+  labels:
+    {{- include "devops-info-chart.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-weight: {{ .Values.hookJobs.postInstall.weight | quote }}
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        {{- include "devops-info-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: post-install-smoke-test
+          image: curlimages/curl:8.8.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              URL="http://{{ include "devops-info-chart.fullname" . }}:{{ .Values.service.port }}/health"
+              echo "Running smoke test against ${URL}"
+              sleep 10
+              for i in $(seq 1 24); do
+                if curl -fsS --connect-timeout 2 "${URL}" > /dev/null; then
+                  echo "Smoke test passed"
+                  exit 0
+                fi
+                echo "Attempt ${i} failed, retrying in 5s"
+                sleep 5
+              done
+              echo "Smoke test failed"
+              exit 1
+{{- end }}

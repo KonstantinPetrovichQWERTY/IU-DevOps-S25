@@ -1,0 +1,25 @@
+{{- if .Values.hookJobs.preInstall.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "devops-info-chart.fullname" . }}-pre-install
+  labels:
+    {{- include "devops-info-chart.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: {{ .Values.hookJobs.preInstall.weight | quote }}
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        {{- include "devops-info-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pre-install-check
+          image: {{ .Values.hookJobs.image }}
+          imagePullPolicy: {{ .Values.hookJobs.pullPolicy }}
+          command: ["sh", "-c", "echo Pre-install validation passed for release {{ .Release.Name }}"]
+{{- end }}

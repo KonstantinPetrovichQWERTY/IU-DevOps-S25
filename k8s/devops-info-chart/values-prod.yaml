@@ -1,0 +1,24 @@
+replicaCount: 5
+
+image:
+  tag: a6eb67992f8c0f5127dc9e09862621f662597c9e
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+service:
+  type: LoadBalancer
+  nodePort: null
+
+livenessProbe:
+  initialDelaySeconds: 20
+  periodSeconds: 5
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 3
