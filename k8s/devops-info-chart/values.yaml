@@ -22,6 +22,26 @@ env:
   - name: HOST
     value: "0.0.0.0"
 
+config:
+  appName: devops-info-service
+  environment: dev
+  mountPath: /config
+  features:
+    enableVisitsCounter: true
+    enableMetricsEndpoint: true
+
+envConfig:
+  APP_ENV: dev
+  LOG_LEVEL: INFO
+  FEATURE_VISITS_COUNTER: "true"
+  VISITS_FILE: /data/visits
+
+persistence:
+  enabled: true
+  size: 100Mi
+  storageClass: ""
+  mountPath: /data
+
 serviceAccount:
   create: true
   name: ""

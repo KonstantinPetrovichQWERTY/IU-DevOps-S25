@@ -1,0 +1,14 @@
+{
+  "application": {
+    "name": "{{ .Values.config.appName }}",
+    "environment": "{{ .Values.config.environment }}",
+    "version": "{{ .Chart.AppVersion }}"
+  },
+  "features": {
+    "enable_visits_counter": {{ .Values.config.features.enableVisitsCounter }},
+    "enable_metrics_endpoint": {{ .Values.config.features.enableMetricsEndpoint }}
+  },
+  "settings": {
+    "log_level": "{{ .Values.envConfig.LOG_LEVEL }}"
+  }
+}

@@ -30,3 +30,18 @@ k8sSecret:
 
 vault:
   enabled: false
+
+config:
+  environment: dev
+
+envConfig:
+  APP_ENV: dev
+  LOG_LEVEL: DEBUG
+  FEATURE_VISITS_COUNTER: "true"
+  VISITS_FILE: /data/visits
+
+persistence:
+  enabled: true
+  size: 100Mi
+  storageClass: ""
+  mountPath: /data
