@@ -41,11 +41,21 @@ spec:
             - name: {{ .name }}
               value: {{ .value | quote }}
             {{- end }}
-          {{- if .Values.k8sSecret.create }}
           envFrom:
+            - configMapRef:
+                name: {{ include "devops-info-chart.envConfigMapName" . }}
+            {{- if .Values.k8sSecret.create }}
             - secretRef:
                 name: {{ include "devops-info-chart.k8sSecretName" . }}
-          {{- end }}
+            {{- end }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: {{ .Values.config.mountPath }}
+              readOnly: true
+            {{- if .Values.persistence.enabled }}
+            - name: data-volume
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
@@ -54,3 +64,12 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "devops-info-chart.configMapName" . }}
+        {{- if .Values.persistence.enabled }}
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ include "devops-info-chart.pvcName" . }}
+        {{- end }}

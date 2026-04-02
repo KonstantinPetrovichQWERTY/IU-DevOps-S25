@@ -56,7 +56,9 @@ class TestRootEndpoint:
         assert "uptime_human" in runtime
         assert "current_time" in runtime
         assert "timezone" in runtime
+        assert "visits_count" in runtime
         assert runtime["timezone"] == "UTC"
+        assert isinstance(runtime["visits_count"], int)
 
         # Test request section
         request_info = data["request"]
@@ -76,6 +78,7 @@ class TestRootEndpoint:
         endpoint_paths = [e["path"] for e in endpoints]
         assert "/" in endpoint_paths
         assert "/health" in endpoint_paths
+        assert "/visits" in endpoint_paths
 
     def test_root_endpoint_returns_valid_datetime(self):
         """Test that the current_time field contains a valid ISO datetime"""
@@ -164,6 +167,22 @@ class TestMetricsEndpoint:
 
         assert "devops_info_endpoint_calls_total" in metrics_text
         assert "devops_info_system_collection_seconds" in metrics_text
+
+
+# ==================== VISITS ENDPOINT TESTS ====================
+
+
+class TestVisitsEndpoint:
+    """Test suite for the visits endpoint (GET /visits)"""
+
+    def test_visits_endpoint_returns_counter(self):
+        """Test that /visits returns integer counter value"""
+        response = client.get("/visits")
+        assert response.status_code == 200
+        data = response.json()
+
+        assert "visits" in data
+        assert isinstance(data["visits"], int)
 
 
 # ==================== CONFIGURATION TESTS ====================

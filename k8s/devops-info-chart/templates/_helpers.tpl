@@ -49,3 +49,18 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-k8s-secret" (include "devops-info-chart.fullname" .) }}
 {{- end }}
 {{- end }}
+
+{{/* ConfigMap with file-based app config */}}
+{{- define "devops-info-chart.configMapName" -}}
+{{- printf "%s-config" (include "devops-info-chart.fullname" .) }}
+{{- end }}
+
+{{/* ConfigMap with environment variables */}}
+{{- define "devops-info-chart.envConfigMapName" -}}
+{{- printf "%s-env" (include "devops-info-chart.fullname" .) }}
+{{- end }}
+
+{{/* PersistentVolumeClaim name */}}
+{{- define "devops-info-chart.pvcName" -}}
+{{- printf "%s-data" (include "devops-info-chart.fullname" .) }}
+{{- end }}

@@ -1,0 +1,16 @@
+services:
+  devops-info-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devops-info-app:lab12
+    container_name: devops-info-app
+    ports:
+      - "8000:8000"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      VISITS_FILE: "/data/visits"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

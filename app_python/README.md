@@ -19,6 +19,7 @@ A production-ready web service that provides comprehensive system and runtime in
   - [API Endpoints](#-api-endpoints)
     - [GET `/`](#get-)
     - [GET `/health`](#get-health)
+    - [GET `/visits`](#get-visits)
   - [Development](#️-development)
     - [Project Structure](#project-structure)
   - [Contributing](#-contributing)
@@ -33,6 +34,8 @@ The DevOps Info Service is a lightweight web application that exposes detailed i
 - HTTP request information
 
 This service serves as the starting point for a comprehensive monitoring solution that will later include containerization, CI/CD pipelines, metrics export, and Kubernetes deployment.
+
+It also persists a request visits counter in a file so the value can survive container restarts when a volume is mounted.
 
 ## 🚀 Quick Start
 
@@ -122,6 +125,7 @@ The application can be configured using environment variables:
 | `HOST` | Bind address | `0.0.0.0` | `127.0.0.1` |
 | `PORT` | Listening port | `5000` | `8080` |
 | `DEBUG` | Debug mode | `False` | `True` |
+| `VISITS_FILE` | Path to visits counter file | `data/visits` | `/data/visits` |
 
 **Examples:**
 
@@ -246,6 +250,18 @@ Simple health check endpoint for monitoring probes.
 
 - `200 OK` - Service is healthy
 - `500 Internal Server Error` - Service is unhealthy
+
+### GET `/visits`
+
+Returns the current visits counter value read from the persistent file.
+
+**Response Example:**
+
+```json
+{
+  "visits": 12
+}
+```
 
 ## 🛠️ Development
 

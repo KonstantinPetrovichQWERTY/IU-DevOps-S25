@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "devops-info-chart.configMapName" . }}
+  labels:
+    {{- include "devops-info-chart.labels" . | nindent 4 }}
+data:
+  config.json: |-
+    {{- tpl (.Files.Get "files/config.json") . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "devops-info-chart.envConfigMapName" . }}
+  labels:
+    {{- include "devops-info-chart.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.envConfig }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

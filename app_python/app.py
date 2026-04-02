@@ -1,5 +1,7 @@
 import os
 import time
+import tempfile
+import threading
 from fastapi import FastAPI, Request, Response
 from datetime import datetime
 from datetime import timezone
@@ -16,11 +18,13 @@ from prometheus_client import (
 
 import platform
 import socket
+from pathlib import Path
 
 # Env variables config
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", 5000))
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+VISITS_FILE = os.getenv("VISITS_FILE", "data/visits")
 
 
 # Logging config
@@ -83,6 +87,7 @@ logger.propagate = False
 
 app = FastAPI()
 start_time = datetime.now()
+visits_lock = threading.Lock()
 
 
 # Prometheus metrics
@@ -142,9 +147,46 @@ def get_endpoint_label(request: Request) -> str:
         return route.path
 
     path = request.url.path
-    if path in {"/", "/health", "/metrics"}:
+    if path in {"/", "/health", "/metrics", "/visits"}:
         return path
     return "other"
+
+
+def read_visits_count() -> int:
+    """Reads visit counter from file, returning 0 if file is missing or invalid."""
+    visits_path = Path(VISITS_FILE)
+    if not visits_path.exists():
+        return 0
+
+    try:
+        content = visits_path.read_text(encoding="utf-8").strip()
+        return int(content) if content else 0
+    except (ValueError, OSError):
+        return 0
+
+
+def write_visits_count(count: int) -> None:
+    """Writes visit counter atomically to avoid partial writes."""
+    visits_path = Path(VISITS_FILE)
+    visits_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        "w",
+        encoding="utf-8",
+        dir=visits_path.parent,
+        delete=False,
+    ) as tmp_file:
+        tmp_file.write(str(count))
+        temp_name = tmp_file.name
+    os.replace(temp_name, visits_path)
+
+
+def increment_visits_count() -> int:
+    """Increments visit counter with in-process locking for concurrent requests."""
+    with visits_lock:
+        current = read_visits_count()
+        updated = current + 1
+        write_visits_count(updated)
+        return updated
 
 
 # Logging middleware. Logs all requests and records Prometheus metrics.
@@ -231,6 +273,7 @@ def get_metrics():
 def get_service_information(request: Request):
     """Service and system information"""
 
+    visits = increment_visits_count()
     endpoint_calls_total.labels(endpoint="/").inc()
 
     with system_info_collection_seconds.time():
@@ -265,6 +308,7 @@ def get_service_information(request: Request):
             "uptime_human": uptime.get("human", None),
             "current_time": utc_now,
             "timezone": "UTC",
+            "visits_count": visits,
         },
         "request": {
             "client_ip": request.client.host,
@@ -288,6 +332,11 @@ def get_service_information(request: Request):
                 "method": "GET",
                 "description": "Prometheus metrics"
             },
+            {
+                "path": "/visits",
+                "method": "GET",
+                "description": "Get current visits counter"
+            },
         ],
     }
 
@@ -306,4 +355,19 @@ def health_check():
         "status": "healthy",
         "timestamp": datetime.now(pytz.utc),
         "uptime_seconds": uptime.get("seconds", None),
+    }
+
+
+@app.get(
+    "/visits",
+    description="Current visits counter",
+    status_code=200,
+)
+def get_visits_count():
+    """Returns current persisted visits counter."""
+    endpoint_calls_total.labels(endpoint="/visits").inc()
+    with visits_lock:
+        visits = read_visits_count()
+    return {
+        "visits": visits,
     }

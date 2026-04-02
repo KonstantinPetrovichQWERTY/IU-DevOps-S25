@@ -33,3 +33,18 @@ vault:
   role: "devops-info-role"
   secretPath: "secret/data/devops-info/config"
   injectedFileName: "vault-config"
+
+config:
+  environment: prod
+
+envConfig:
+  APP_ENV: prod
+  LOG_LEVEL: INFO
+  FEATURE_VISITS_COUNTER: "true"
+  VISITS_FILE: /data/visits
+
+persistence:
+  enabled: true
+  size: 500Mi
+  storageClass: ""
+  mountPath: /data
