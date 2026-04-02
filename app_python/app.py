@@ -153,7 +153,7 @@ def get_endpoint_label(request: Request) -> str:
 
 
 def read_visits_count() -> int:
-    """Reads visit counter from file, returning 0 if file is missing or invalid."""
+    """Reads visit counter from file"""
     visits_path = Path(VISITS_FILE)
     if not visits_path.exists():
         return 0
@@ -181,7 +181,7 @@ def write_visits_count(count: int) -> None:
 
 
 def increment_visits_count() -> int:
-    """Increments visit counter with in-process locking for concurrent requests."""
+    """Increments visit counter"""
     with visits_lock:
         current = read_visits_count()
         updated = current + 1
