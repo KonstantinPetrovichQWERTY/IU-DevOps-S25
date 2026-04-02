@@ -22,3 +22,11 @@ livenessProbe:
 readinessProbe:
   initialDelaySeconds: 3
   periodSeconds: 5
+
+k8sSecret:
+  data:
+    username: "dev-user"
+    password: "dev-password"
+
+vault:
+  enabled: false

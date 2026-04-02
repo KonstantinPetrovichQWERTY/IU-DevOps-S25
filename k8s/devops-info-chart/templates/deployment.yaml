@@ -20,7 +20,14 @@ spec:
       labels:
         {{- include "devops-info-chart.selectorLabels" . | nindent 8 }}
         component: backend
+      {{- if .Values.vault.enabled }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: {{ .Values.vault.role | quote }}
+        vault.hashicorp.com/agent-inject-secret-{{ .Values.vault.injectedFileName }}: {{ .Values.vault.secretPath | quote }}
+      {{- end }}
     spec:
+      serviceAccountName: {{ include "devops-info-chart.serviceAccountName" . }}
       containers:
         - name: {{ include "devops-info-chart.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -34,6 +41,11 @@ spec:
             - name: {{ .name }}
               value: {{ .value | quote }}
             {{- end }}
+          {{- if .Values.k8sSecret.create }}
+          envFrom:
+            - secretRef:
+                name: {{ include "devops-info-chart.k8sSecretName" . }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:

@@ -31,3 +31,21 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/name: {{ include "devops-info-chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/* ServiceAccount name */}}
+{{- define "devops-info-chart.serviceAccountName" -}}
+{{- if .Values.serviceAccount.name }}
+{{- .Values.serviceAccount.name }}
+{{- else }}
+{{- include "devops-info-chart.fullname" . }}
+{{- end }}
+{{- end }}
+
+{{/* Kubernetes Secret name */}}
+{{- define "devops-info-chart.k8sSecretName" -}}
+{{- if .Values.k8sSecret.name }}
+{{- .Values.k8sSecret.name }}
+{{- else }}
+{{- printf "%s-k8s-secret" (include "devops-info-chart.fullname" .) }}
+{{- end }}
+{{- end }}
