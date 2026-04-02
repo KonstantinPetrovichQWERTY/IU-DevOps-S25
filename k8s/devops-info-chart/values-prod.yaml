@@ -22,3 +22,14 @@ livenessProbe:
 readinessProbe:
   initialDelaySeconds: 10
   periodSeconds: 3
+
+k8sSecret:
+  data:
+    username: "prod-user-placeholder"
+    password: "prod-password-placeholder"
+
+vault:
+  enabled: true
+  role: "devops-info-role"
+  secretPath: "secret/data/devops-info/config"
+  injectedFileName: "vault-config"

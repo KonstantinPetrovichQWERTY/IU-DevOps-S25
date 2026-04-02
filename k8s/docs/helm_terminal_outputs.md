@@ -86,12 +86,7 @@ helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 helm.sh/hook: post-install
 helm.sh/hook-weight: "5"
 helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
-
-$ kubectl get jobs | Select-String devops-info-dev
-No resources found in default namespace.
 ```
-
-Interpretation: no hook jobs remain after successful execution due deletion policy.
 
 ## Task 5 - Accessibility and operations
 
