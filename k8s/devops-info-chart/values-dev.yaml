@@ -13,7 +13,7 @@ resources:
 
 service:
   type: NodePort
-  nodePort: 30081
+  nodePort: 30082
 
 livenessProbe:
   initialDelaySeconds: 5
