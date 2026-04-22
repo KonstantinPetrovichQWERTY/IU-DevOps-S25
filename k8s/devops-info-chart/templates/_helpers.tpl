@@ -64,3 +64,12 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- define "devops-info-chart.pvcName" -}}
 {{- printf "%s-data" (include "devops-info-chart.fullname" .) }}
 {{- end }}
+
+{{/* Preview service name for blue-green strategy */}}
+{{- define "devops-info-chart.previewServiceName" -}}
+{{- if .Values.rollout.blueGreen.previewServiceName }}
+{{- .Values.rollout.blueGreen.previewServiceName }}
+{{- else }}
+{{- printf "%s-preview" (include "devops-info-chart.fullname" .) }}
+{{- end }}
+{{- end }}

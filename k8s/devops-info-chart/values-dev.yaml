@@ -45,3 +45,6 @@ persistence:
   size: 100Mi
   storageClass: ""
   mountPath: /data
+
+rollout:
+  strategy: canary

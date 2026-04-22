@@ -2,3 +2,4 @@ test
 .ansible
 **.env
 /.tmp
+/argo-rollout

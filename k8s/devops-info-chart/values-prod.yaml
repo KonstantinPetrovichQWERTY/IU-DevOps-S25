@@ -48,3 +48,9 @@ persistence:
   size: 500Mi
   storageClass: ""
   mountPath: /data
+
+rollout:
+  strategy: blueGreen
+  blueGreen:
+    autoPromotionEnabled: false
+    scaleDownDelaySeconds: 30
