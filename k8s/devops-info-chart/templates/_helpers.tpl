@@ -73,3 +73,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-preview" (include "devops-info-chart.fullname" .) }}
 {{- end }}
 {{- end }}
+
+{{/* Headless service name for StatefulSet network identity */}}
+{{- define "devops-info-chart.headlessServiceName" -}}
+{{- printf "%s-headless" (include "devops-info-chart.fullname" .) }}
+{{- end }}

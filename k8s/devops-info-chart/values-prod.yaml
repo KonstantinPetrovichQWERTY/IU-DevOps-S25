@@ -1,5 +1,8 @@
 replicaCount: 5
 
+workload:
+  kind: rollout
+
 image:
   tag: a6eb67992f8c0f5127dc9e09862621f662597c9e
 
