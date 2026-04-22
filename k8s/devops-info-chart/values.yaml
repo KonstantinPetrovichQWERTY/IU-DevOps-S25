@@ -1,5 +1,8 @@
 replicaCount: 3
 
+workload:
+  kind: rollout
+
 image:
   repository: konstantinqwertin/devops-info-app
   tag: latest
@@ -39,6 +42,7 @@ envConfig:
 persistence:
   enabled: true
   size: 100Mi
+  accessMode: ReadWriteOnce
   storageClass: ""
   mountPath: /data
 
